@@ -1,0 +1,198 @@
+{
+    "operating_systems": {
+        "ubuntu": {
+            "avgRamMB": 512,
+            "avgCpuGhz": 0.2,
+            "avgGpuGhz": 0
+        },
+        "debian": {
+            "avgRamMB": 256,
+            "avgCpuGhz": 0.1,
+            "avgGpuGhz": 0
+        },
+        "windows": {
+            "avgRamMB": 4096,
+            "avgCpuGhz": 1.0,
+            "avgGpuGhz": 0.2
+        },
+        "macos": {
+            "avgRamMB": 4096,
+            "avgCpuGhz": 1.0,
+            "avgGpuGhz": 0.5
+        },
+        "centos": {
+            "avgRamMB": 512,
+            "avgCpuGhz": 0.2,
+            "avgGpuGhz": 0
+        },
+        "casaos": {
+            "avgRamMB": 256,
+            "avgCpuGhz": 0.1,
+            "avgGpuGhz": 0
+        },
+        "umbrel": {
+            "avgRamMB": 512,
+            "avgCpuGhz": 0.2,
+            "avgGpuGhz": 0
+        },
+        "yunohost": {
+            "avgRamMB": 256,
+            "avgCpuGhz": 0.1,
+            "avgGpuGhz": 0
+        },
+        "unraid": {
+            "avgRamMB": 1024,
+            "avgCpuGhz": 0.3,
+            "avgGpuGhz": 0
+        },
+        "truenas": {
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.4,
+            "avgGpuGhz": 0
+        },
+        "startos": {
+            "avgRamMB": 512,
+            "avgCpuGhz": 0.2,
+            "avgGpuGhz": 0
+        },
+        "omv": {
+            "avgRamMB": 256,
+            "avgCpuGhz": 0.1,
+            "avgGpuGhz": 0
+        },
+        "proxmox_os": {
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.5,
+            "avgGpuGhz": 0
+        },
+        "xcp_ng": {
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.5,
+            "avgGpuGhz": 0
+        },
+        "esxi": {
+            "avgRamMB": 4096,
+            "avgCpuGhz": 1.0,
+            "avgGpuGhz": 0
+        },
+        "harvester": {
+            "avgRamMB": 8192,
+            "avgCpuGhz": 2.0,
+            "avgGpuGhz": 0
+        },
+        "ovirt": {
+            "avgRamMB": 4096,
+            "avgCpuGhz": 1.0,
+            "avgGpuGhz": 0
+        },
+        "opennebula": {
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.5,
+            "avgGpuGhz": 0
+        },
+        "citrix": {
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.5,
+            "avgGpuGhz": 0
+        },
+        "oracle_vm": {
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.5,
+            "avgGpuGhz": 0
+        },
+        "smartos": {
+            "avgRamMB": 512,
+            "avgCpuGhz": 0.2,
+            "avgGpuGhz": 0
+        },
+        "truenas_scale_os": {
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.4,
+            "avgGpuGhz": 0
+        }
+    },
+    "applications": {
+        "pihole": {
+            "name": "Pi-hole",
+            "avgRamMB": 256,
+            "avgCpuGhz": 0.1,
+            "avgGpuGhz": 0,
+            "peakRamMB": 512,
+            "peakCpuGhz": 0.3
+        },
+        "proxmox": {
+            "name": "Proxmox VE",
+            "avgRamMB": 2048,
+            "avgCpuGhz": 0.5,
+            "avgGpuGhz": 0,
+            "peakRamMB": 4096,
+            "peakCpuGhz": 1.5
+        },
+        "docker": {
+            "name": "Docker",
+            "avgRamMB": 128,
+            "avgCpuGhz": 0.05,
+            "avgGpuGhz": 0,
+            "peakRamMB": 512,
+            "peakCpuGhz": 0.2
+        },
+        "plex": {
+            "name": "Plex",
+            "avgRamMB": 1024,
+            "avgCpuGhz": 0.8,
+            "avgGpuGhz": 0.5,
+            "peakRamMB": 2048,
+            "peakCpuGhz": 2.5,
+            "peakGpuGhz": 1.2
+        },
+        "homeassistant": {
+            "name": "Home Assistant",
+            "avgRamMB": 512,
+            "avgCpuGhz": 0.2,
+            "avgGpuGhz": 0,
+            "peakRamMB": 1024,
+            "peakCpuGhz": 0.6
+        },
+        "nginx": {
+            "name": "Nginx",
+            "avgRamMB": 64,
+            "avgCpuGhz": 0.05,
+            "avgGpuGhz": 0,
+            "peakRamMB": 128,
+            "peakCpuGhz": 0.1
+        },
+        "portainer": {
+            "name": "Portainer",
+            "avgRamMB": 150,
+            "avgCpuGhz": 0.1,
+            "avgGpuGhz": 0,
+            "peakRamMB": 300,
+            "peakCpuGhz": 0.3
+        },
+        "grafana": {
+            "name": "Grafana",
+            "avgRamMB": 200,
+            "avgCpuGhz": 0.1,
+            "avgGpuGhz": 0,
+            "peakRamMB": 500,
+            "peakCpuGhz": 0.5
+        }
+    },
+    "hardware_defaults": {
+        "server": {
+            "maxRamMB": 32768,
+            "maxCpuGhz": 16.0,
+            "maxGpuGhz": 4.0
+        },
+        "nas": {
+            "maxRamMB": 8192,
+            "maxCpuGhz": 4.0,
+            "maxGpuGhz": 0
+        },
+        "raspberry-pi": {
+            "maxRamMB": 8192,
+            "maxCpuGhz": 1.5,
+            "maxGpuGhz": 0.5
+        }
+    }
+}

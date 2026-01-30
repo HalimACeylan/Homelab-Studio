@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="HomeLab Studio - Visual infrastructure editor for designing and managing homelab topology diagrams with drag-and-drop components"
+    />
+    <title>HomeLab Studio - Infrastructure Designer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="logo">
+          <svg
+            class="logo-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+            <circle
+              cx="12"
+              cy="10"
+              r="3"
+              fill="currentColor"
+              stroke="none"
+            ></circle>
+          </svg>
+          <span class="logo-text">HomeLab Studio</span>
+        </div>
+        <div class="toolbar">
+          <button class="toolbar-btn" id="btn-new" title="New Diagram">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              ></path>
+              <polyline points="14,2 14,8 20,8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            <span>New</span>
+          </button>
+          <button class="toolbar-btn" id="btn-save" title="Save Diagram">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+              ></path>
+              <polyline points="17,21 17,13 7,13 7,21"></polyline>
+              <polyline points="7,3 7,8 15,8"></polyline>
+            </svg>
+            <span>Save</span>
+          </button>
+          <button class="toolbar-btn" id="btn-load" title="Load Diagram">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17,8 12,3 7,8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span>Load</span>
+          </button>
+          <button class="toolbar-btn" id="btn-export" title="Export as PNG">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7,10 12,15 17,10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Export</span>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn" id="btn-undo" title="Undo">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="1,4 1,10 7,10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+          </button>
+          <button class="toolbar-btn" id="btn-redo" title="Redo">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="23,4 23,10 17,10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"></path>
+            </svg>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn" id="btn-zoom-in" title="Zoom In">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="11" y1="8" x2="11" y2="14"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
+          </button>
+          <span class="zoom-level" id="zoom-level">100%</span>
+          <button class="toolbar-btn" id="btn-zoom-out" title="Zoom Out">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
+          </button>
+          <button class="toolbar-btn" id="btn-fit" title="Fit to Screen">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="15,3 21,3 21,9"></polyline>
+              <polyline points="9,21 3,21 3,15"></polyline>
+              <line x1="21" y1="3" x2="14" y2="10"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="header-actions">
+          <button class="btn-theme" id="btn-theme" title="Toggle Theme">
+            <svg
+              class="sun-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg
+              class="moon-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="app-main">
+        <!-- Component Palette -->
+        <aside class="palette" id="palette">
+          <div class="palette-header">
+            <h2>Components</h2>
+            <input
+              type="text"
+              class="palette-search"
+              id="palette-search"
+              placeholder="Search components..."
+            />
+          </div>
+          <div class="palette-content">
+            <!-- Hardware Section -->
+            <div class="palette-section" data-section="hardware">
+              <button class="palette-section-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6,9 12,15 18,9"></polyline>
+                </svg>
+                <span>Hardware</span>
+              </button>
+              <div class="palette-items">
+                <div class="palette-item" draggable="true" data-type="server">
+                  <div class="palette-item-icon server-icon"></div>
+                  <span>Server</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="nas">
+                  <div class="palette-item-icon nas-icon"></div>
+                  <span>NAS</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="raspberry-pi">
+                  <div class="palette-item-icon raspberry-pi-icon"></div>
+                  <span>Raspberry Pi</span>
+                </div>
+              </div>
+            </div>
+            <!-- V-OS (Hypervisors) Section -->
+            <div class="palette-section" data-section="v-os">
+              <button class="palette-section-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span>Hypervisors (V-OS)</span>
+              </button>
+              <div class="palette-items">
+                <div class="palette-item" draggable="true" data-type="proxmox_os" data-category="os">
+                  <div class="palette-item-icon proxmox-icon"></div>
+                  <span>Proxmox VE</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="esxi" data-category="os">
+                  <div class="palette-item-icon esxi-icon"></div>
+                  <span>VMware ESXi</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="xcp_ng" data-category="os">
+                  <div class="palette-item-icon xcp_ng-icon"></div>
+                  <span>XCP-ng</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="truenas_scale_os" data-category="os">
+                  <div class="palette-item-icon truenas-icon"></div>
+                  <span>TrueNAS SCALE</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="harvester" data-category="os">
+                  <div class="palette-item-icon harvester-icon"></div>
+                  <span>Harvester</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="ovirt" data-category="os">
+                  <div class="palette-item-icon ovirt-icon"></div>
+                  <span>oVirt</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="citrix" data-category="os">
+                  <div class="palette-item-icon citrix-icon"></div>
+                  <span>Citrix Hypervisor</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="oracle_vm" data-category="os">
+                  <div class="palette-item-icon oracle-icon"></div>
+                  <span>Oracle VM</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="opennebula" data-category="os">
+                  <div class="palette-item-icon opennebula-icon"></div>
+                  <span>OpenNebula</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="smartos" data-category="os">
+                  <div class="palette-item-icon smartos-icon"></div>
+                  <span>SmartOS</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Network Section -->
+            <div class="palette-section" data-section="network">
+              <button class="palette-section-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6,9 12,15 18,9"></polyline>
+                </svg>
+                <span>Network</span>
+              </button>
+              <div class="palette-items">
+                <div class="palette-item" draggable="true" data-type="router">
+                  <div class="palette-item-icon router-icon"></div>
+                  <span>Router</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="switch">
+                  <div class="palette-item-icon switch-icon"></div>
+                  <span>Switch</span>
+                </div>
+              </div>
+            </div>
+            <!-- Operating Systems Section -->
+            <div class="palette-section" data-section="operating-system">
+              <button class="palette-section-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6,9 12,15 18,9"></polyline>
+                </svg>
+                <span>Operating Systems</span>
+              </button>
+              <div class="palette-items">
+                <div class="palette-item" draggable="true" data-type="ubuntu" data-category="os">
+                  <div class="palette-item-icon ubuntu-icon"></div>
+                  <span>Ubuntu</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="debian" data-category="os">
+                  <div class="palette-item-icon debian-icon"></div>
+                  <span>Debian</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="windows" data-category="os">
+                  <div class="palette-item-icon windows-icon"></div>
+                  <span>Windows</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="macos" data-category="os">
+                  <div class="palette-item-icon macos-icon"></div>
+                  <span>macOS</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="centos" data-category="os">
+                  <div class="palette-item-icon centos-icon"></div>
+                  <span>CentOS</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="casaos" data-category="os">
+                  <div class="palette-item-icon casaos-icon"></div>
+                  <span>CasaOS</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="umbrel" data-category="os">
+                  <div class="palette-item-icon umbrel-icon"></div>
+                  <span>Umbrel</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="yunohost" data-category="os">
+                  <div class="palette-item-icon yunohost-icon"></div>
+                  <span>YunoHost</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="unraid" data-category="os">
+                  <div class="palette-item-icon unraid-icon"></div>
+                  <span>Unraid</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="startos" data-category="os">
+                  <div class="palette-item-icon startos-icon"></div>
+                  <span>StartOS</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="omv" data-category="os">
+                  <div class="palette-item-icon omv-icon"></div>
+                  <span>OpenMediaVault</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Applications Section -->
+            <div class="palette-section" data-section="applications">
+              <button class="palette-section-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6,9 12,15 18,9"></polyline>
+                </svg>
+                <span>Applications</span>
+              </button>
+              <div class="palette-items">
+                <div class="palette-item" draggable="true" data-type="pihole" data-category="application">
+                  <div class="palette-item-icon pihole-icon"></div>
+                  <span>Pi-hole</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="proxmox" data-category="application">
+                  <div class="palette-item-icon proxmox-icon"></div>
+                  <span>Proxmox</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="docker" data-category="application">
+                  <div class="palette-item-icon docker-icon"></div>
+                  <span>Docker</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="plex" data-category="application">
+                  <div class="palette-item-icon plex-icon"></div>
+                  <span>Plex</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="homeassistant" data-category="application">
+                  <div class="palette-item-icon homeassistant-icon"></div>
+                  <span>Home Assistant</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Canvas Area -->
+        <div class="canvas-container" id="canvas-container">
+          <!-- Floating Tool Selector (Pen-style) -->
+          <div class="tool-selector" id="tool-selector">
+            <div class="selector-items">
+              <!-- Select Tool -->
+              <button class="tool-btn active" data-mode="select" title="Select & Drag (V)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+                  <path d="M13 13l6 6"/>
+                </svg>
+                <span>Select</span>
+              </button>
+              
+              <div class="selector-divider"></div>
+
+              <!-- Connection Tools (Pens) -->
+              <button class="tool-btn" data-mode="connect" data-type="ethernet" title="Cable (Ethernet)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 11h-2a3 3 0 0 0-3 3v1a2 2 0 0 1-2 2H3"/>
+                </svg>
+                <span>Ethernet</span>
+              </button>
+
+              <button class="tool-btn" data-mode="connect" data-type="wireless" title="WiFi (Wireless)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 13a10 10 0 0 1 14 0"/>
+                  <circle cx="12" cy="20" r="1"/>
+                </svg>
+                <span>Wireless</span>
+              </button>
+
+              <button class="tool-btn" data-mode="connect" data-type="fiber" title="Fiber Optic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span>Fiber</span>
+              </button>
+
+              <button class="tool-btn" data-mode="connect" data-type="usb" title="USB">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20"/>
+                  <path d="M12 12 7 9"/>
+                  <path d="M12 12 17 9"/>
+                </svg>
+                <span>USB</span>
+              </button>
+            </div>
+          </div>
+          <div class="canvas-wrapper" id="canvas-wrapper">
+            <svg class="canvas-grid" id="canvas-grid"></svg>
+            <svg class="connections-layer" id="connections-layer"></svg>
+            <div class="nodes-layer" id="nodes-layer"></div>
+            <div class="canvas-overlay" id="canvas-overlay"></div>
+          </div>
+        </div>
+
+        <!-- Properties Panel -->
+        <aside class="properties-panel" id="properties-panel">
+          <div class="panel-header">
+            <h2>Properties</h2>
+            <button class="panel-close" id="panel-close" title="Close Panel">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="panel-content" id="panel-content">
+            <div class="empty-panel">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <p>Select a node or connection to view and edit its properties</p>
+            </div>
+          </div>
+        </aside>
+      </main>
+
+      <!-- Status Bar -->
+      <footer class="status-bar">
+        <div class="status-left">
+          <span class="status-item" id="status-nodes">Nodes: 0</span>
+          <span class="status-item" id="status-connections"
+            >Connections: 0</span
+          >
+        </div>
+        <div class="status-center">
+          <span class="status-item" id="status-message">Ready</span>
+        </div>
+        <div class="status-right">
+          <span class="status-item" id="status-coords">X: 0, Y: 0</span>
+        </div>
+      </footer>
+
+      <!-- Context Menu -->
+      <div class="context-menu" id="context-menu">
+        <button class="context-item" data-action="duplicate">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+            <path
+              d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+            ></path>
+          </svg>
+          <span>Duplicate</span>
+          <kbd>Ctrl+D</kbd>
+        </button>
+        <button class="context-item" data-action="delete">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="3,6 5,6 21,6"></polyline>
+            <path
+              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+            ></path>
+          </svg>
+          <span>Delete</span>
+          <kbd>Del</kbd>
+        </button>
+        <div class="context-divider"></div>
+        <button class="context-item" data-action="bring-front">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="8" y="8" width="8" height="8" rx="1"></rect>
+            <path d="M4 16V8a4 4 0 0 1 4-4h8"></path>
+          </svg>
+          <span>Bring to Front</span>
+        </button>
+        <button class="context-item" data-action="send-back">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="8" y="8" width="8" height="8" rx="1"></rect>
+            <path d="M20 8v8a4 4 0 0 1-4 4H8"></path>
+          </svg>
+          <span>Send to Back</span>
+        </button>
+        <div class="context-divider"></div>
+        <button class="context-item" data-action="connect">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+            ></path>
+            <polyline points="15,3 21,3 21,9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          <span>Connect To...</span>
+          <kbd>C</kbd>
+        </button>
+      </div>
+
+      <!-- Modal Dialogs -->
+      <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal">
+          <div class="modal-header">
+            <h3 id="modal-title">Modal Title</h3>
+            <button class="modal-close" id="modal-close">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-content" id="modal-content"></div>
+          <div class="modal-footer" id="modal-footer">
+            <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+            <button class="btn btn-primary" id="modal-confirm">Confirm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Notifications -->
+      <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <!-- File Input for Loading -->
+    <input
+      type="file"
+      id="file-input"
+      accept=".json,.hlstudio"
+      style="display: none"
+    />
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
