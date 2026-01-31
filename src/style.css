@@ -1144,6 +1144,23 @@ body {
    Canvas Nodes - Container Style
    =================================== */
 
+/* Cursor Modes */
+.canvas-wrapper.mode-select {
+  cursor: grab;
+}
+
+.canvas-wrapper.mode-select:active {
+  cursor: grabbing;
+}
+
+.canvas-wrapper.mode-connect {
+  cursor: crosshair;
+}
+
+.canvas-wrapper.mode-marquee {
+  cursor: crosshair; /* or cell/copy etc */
+}
+
 .canvas-node {
   position: absolute;
   background: var(--bg-secondary);
@@ -1598,6 +1615,17 @@ body {
   background: var(--node-color, var(--accent-blue));
   border-color: var(--node-color, var(--accent-blue));
 }
+
+/* Selection Marquee */
+.selection-marquee {
+  position: absolute;
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid var(--accent-blue);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 10000;
+}
+
 
 .port-left {
   left: 0;

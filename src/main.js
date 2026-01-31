@@ -206,9 +206,18 @@ class HomelabStudio {
   }
 
   // Select node
-  selectNode(nodeId) {
-    this.canvas.clearSelection();
-    this.canvas.selectedNodeId = nodeId;
+  selectNode(nodeId, addToSelection = false) {
+    if (!addToSelection) {
+      this.canvas.clearSelection();
+    }
+
+    if (this.canvas.selectedNodeIds) {
+      this.canvas.selectedNodeIds.add(nodeId);
+    } else {
+      // Fallback/Migration if property not updated yet
+      this.canvas.selectedNodeIds = new Set([nodeId]);
+    }
+    this.canvas.selectedNodeId = nodeId; // Keep for backward compatibility/single selection focus
 
     const element = document.querySelector(`[data-node-id="${nodeId}"]`);
     if (element) {
