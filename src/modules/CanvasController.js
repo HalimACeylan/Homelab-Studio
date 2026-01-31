@@ -84,13 +84,21 @@ export class CanvasController {
     const nodeElement = e.target.closest(".canvas-node");
     const portElement = e.target.closest(".node-port");
     const connectionElement = e.target.closest(".connection");
-    const groupElement = e.target.closest(".canvas-group");
+    const groupLabelElement = e.target.closest(".group-label");
 
-    // Handle Group Click
-    if (groupElement && !nodeElement && !portElement && !connectionElement) {
+    // Handle Group Label Click (only the label, not the entire box)
+    if (
+      groupLabelElement &&
+      !nodeElement &&
+      !portElement &&
+      !connectionElement
+    ) {
       e.stopPropagation();
-      const groupId = groupElement.dataset.groupId;
-      this.app.selectGroup(groupId);
+      const groupElement = groupLabelElement.closest(".canvas-group");
+      if (groupElement) {
+        const groupId = groupElement.dataset.groupId;
+        this.app.selectGroup(groupId);
+      }
       return;
     }
 
