@@ -140,6 +140,17 @@ class HomelabStudio {
     this.properties.clear();
   }
 
+  removeSelectedNodes() {
+    const selectedIds = Array.from(this.canvas.selectedNodeIds);
+    if (selectedIds.length === 0) return;
+
+    selectedIds.forEach((id) => {
+      this.removeNode(id);
+    });
+
+    this.canvas.clearSelection();
+  }
+
   removeApplication(nodeId, appType, osEnvId = null) {
     const success = this.diagram.removeApplicationFromNode(
       nodeId,
@@ -247,6 +258,14 @@ class HomelabStudio {
     }
   }
 
+  selectAllNodes() {
+    this.canvas.clearSelection();
+    this.diagram.nodes.forEach((node) => {
+      this.selectNode(node.id, true);
+    });
+    this.ui.showToast(`Selected all ${this.diagram.nodes.size} nodes`, "info");
+  }
+
   // Select group
   selectGroup(groupId) {
     this.canvas.clearSelection();
@@ -289,6 +308,43 @@ class HomelabStudio {
 
     this.selectNode(newNode.id);
     this.ui.showToast("Node duplicated", "success");
+  }
+
+  duplicateSelectedNodes() {
+    const selectedIds = Array.from(this.canvas.selectedNodeIds);
+    if (selectedIds.length === 0) return;
+
+    const newIds = [];
+    const idMap = new Map(); // oldId -> newId
+
+    selectedIds.forEach((id) => {
+      const node = this.diagram.nodes.get(id);
+      if (node) {
+        const newNode = this.addNode(node.type, node.x + 30, node.y + 30, {
+          ...node.properties,
+          name: node.properties.name
+            ? `${node.properties.name} (copy)`
+            : `${node.type} (copy)`,
+        });
+        newIds.push(newNode.id);
+        idMap.set(id, newNode.id);
+      }
+    });
+
+    // Duplicate connections between selected nodes
+    this.diagram.connections.forEach((conn) => {
+      if (idMap.has(conn.sourceId) && idMap.has(conn.targetId)) {
+        this.addConnection(idMap.get(conn.sourceId), idMap.get(conn.targetId), {
+          ...conn.properties,
+          type: conn.type,
+        });
+      }
+    });
+
+    // Select all new nodes
+    this.canvas.clearSelection();
+    newIds.forEach((id) => this.selectNode(id, true));
+    this.ui.showToast(`${newIds.length} node(s) duplicated`, "success");
   }
 
   // Clear all

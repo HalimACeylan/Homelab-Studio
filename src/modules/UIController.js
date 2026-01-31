@@ -209,12 +209,16 @@ export class UIController {
   handleContextAction(action) {
     switch (action) {
       case "duplicate":
-        if (this.contextNodeId) {
+        if (this.app.canvas.selectedNodeIds.size > 0) {
+          this.app.duplicateSelectedNodes();
+        } else if (this.contextNodeId) {
           this.app.duplicateNode(this.contextNodeId);
         }
         break;
       case "delete":
-        if (this.contextNodeId) {
+        if (this.app.canvas.selectedNodeIds.size > 0) {
+          this.app.removeSelectedNodes();
+        } else if (this.contextNodeId) {
           this.app.removeNode(this.contextNodeId);
           this.showToast("Node deleted", "success");
         } else if (this.contextConnectionId) {

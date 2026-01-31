@@ -23,7 +23,19 @@ export class KeyboardController {
 
     // Delete selected element
     if (e.key === "Delete" || e.key === "Backspace") {
-      if (this.app.canvas.selectedNodeId) {
+      const selectedIds = this.app.canvas.selectedNodeIds;
+      if (selectedIds && selectedIds.size > 0) {
+        e.preventDefault();
+        const count = selectedIds.size;
+        // Use a generic removeSelectedNodes if it exists, otherwise loop
+        if (this.app.removeSelectedNodes) {
+          this.app.removeSelectedNodes();
+        } else {
+          const ids = Array.from(selectedIds);
+          ids.forEach((id) => this.app.removeNode(id));
+        }
+        this.app.ui.showToast(`${count} node(s) deleted`, "success");
+      } else if (this.app.canvas.selectedNodeId) {
         e.preventDefault();
         this.app.removeNode(this.app.canvas.selectedNodeId);
         this.app.ui.showToast("Node deleted", "success");
@@ -60,7 +72,16 @@ export class KeyboardController {
 
     // Duplicate (Cmd/Ctrl + D)
     if (cmdKey && e.key === "d") {
-      if (this.app.canvas.selectedNodeId) {
+      const selectedIds = this.app.canvas.selectedNodeIds;
+      if (selectedIds && selectedIds.size > 0) {
+        e.preventDefault();
+        if (this.app.duplicateSelectedNodes) {
+          this.app.duplicateSelectedNodes();
+        } else {
+          const ids = Array.from(selectedIds);
+          ids.forEach((id) => this.app.duplicateNode(id));
+        }
+      } else if (this.app.canvas.selectedNodeId) {
         e.preventDefault();
         this.app.duplicateNode(this.app.canvas.selectedNodeId);
       }
@@ -69,8 +90,7 @@ export class KeyboardController {
     // Select All (Cmd/Ctrl + A)
     if (cmdKey && e.key === "a") {
       e.preventDefault();
-      // Select all nodes (could be implemented)
-      this.app.ui.showToast("Select all is not yet implemented", "info");
+      this.app.selectAllNodes();
     }
 
     // New (Cmd/Ctrl + N)
