@@ -203,6 +203,23 @@ class HomelabStudio {
   updateNodePosition(nodeId, x, y) {
     this.diagram.updateNode(nodeId, { x, y });
     this.connections.updateConnectionsForNode(nodeId);
+
+    // Update affected groups
+    this.canvas.updateGroupsForNode(nodeId);
+  }
+
+  createGroup(nodeIds) {
+    if (!nodeIds || nodeIds.length < 2) return;
+
+    const group = this.diagram.createGroup(nodeIds, "Network Group");
+    this.canvas.renderGroup(group);
+    this.ui.showToast("Network Group created", "success");
+
+    this.history.push({
+      type: "create-group",
+      id: group.id,
+      data: { ...group },
+    });
   }
 
   // Select node

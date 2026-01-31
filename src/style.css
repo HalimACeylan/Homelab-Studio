@@ -1626,6 +1626,31 @@ body {
   z-index: 10000;
 }
 
+/* Groups */
+.canvas-group {
+  position: absolute;
+  border: 2px dashed rgba(88, 166, 255, 0.4);
+  background: rgba(88, 166, 255, 0.03);
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+  z-index: 10;
+  transition: all 0.2s ease-out;
+}
+
+.group-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border-secondary);
+  pointer-events: auto; /* Allow interactions with label if needed */
+}
+
 
 .port-left {
   left: 0;

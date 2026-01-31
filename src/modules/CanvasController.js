@@ -14,6 +14,7 @@ export class CanvasController {
     this.wrapper = document.getElementById("canvas-wrapper");
     this.grid = document.getElementById("canvas-grid");
     this.nodesLayer = document.getElementById("nodes-layer");
+    this.groupsLayer = document.getElementById("groups-layer");
     this.connectionsLayer = document.getElementById("connections-layer");
     this.overlay = document.getElementById("canvas-overlay");
 
@@ -121,7 +122,12 @@ export class CanvasController {
 
       // RIGHT CLICK: Always show context menu regardless of mode
       if (e.button === 2) {
-        this.app.selectNode(nodeId);
+        // If clicked node is not part of current selection, select it (and clear others)
+        if (!this.selectedNodeIds.has(nodeId)) {
+          this.app.selectNode(nodeId);
+        }
+        // If it IS already selected, we DO NOT call selectNode, preserving the multi-selection.
+
         this.app.ui.showContextMenu(e.clientX, e.clientY, nodeId);
         return;
       }
@@ -792,5 +798,99 @@ export class CanvasController {
   renderNode(node) {
     const html = this.nodeRenderer.render(node);
     this.nodesLayer.insertAdjacentHTML("beforeend", html);
+  }
+
+  // Group Rendering
+  renderGroup(group) {
+    if (!group) return;
+
+    // Calculate bounds
+    const bounds = this.getGroupBounds(group);
+    if (!bounds) return;
+
+    // Check if element exists
+    let groupEl = this.groupsLayer.querySelector(
+      `[data-group-id="${group.id}"]`
+    );
+    if (!groupEl) {
+      groupEl = document.createElement("div");
+      groupEl.className = "canvas-group";
+      groupEl.dataset.groupId = group.id;
+
+      // Label
+      const label = document.createElement("div");
+      label.className = "group-label";
+      label.textContent = group.name;
+      groupEl.appendChild(label);
+
+      this.groupsLayer.appendChild(groupEl);
+    }
+
+    // Update style
+    groupEl.style.left = `${bounds.x}px`;
+    groupEl.style.top = `${bounds.y}px`;
+    groupEl.style.width = `${bounds.width}px`;
+    groupEl.style.height = `${bounds.height}px`;
+
+    groupEl.querySelector(".group-label").textContent = group.name;
+  }
+
+  getGroupBounds(group) {
+    if (!group || !group.nodeIds || group.nodeIds.length === 0) return null;
+
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+
+    group.nodeIds.forEach((nodeId) => {
+      const node = this.app.diagram.nodes.get(nodeId);
+      if (node) {
+        // Should account for width/height/expansion
+        // Use expanded height if applicable
+        const nodeType = this.app.diagram.nodes.get(nodeId); // Wait, we have node object
+        // Actually node object has width/height but expanded height logic is in NodeRenderer or dynamically calculated?
+        // DiagramManager stores width/height. Does it store expanded height?
+        // DiagramManager.js:29: width: nodeType.defaultWidth || 140
+        // When expanded, the DOM changes size. The DiagramManager model 'height' might not update to expanded height?
+        // Let's check DiagramManager update.
+        // DiagramManager doesn't seem to persist expanded dimensions in 'height' property, only 'expanded' boolean.
+
+        // We need to estimate or get DOM rect. But getting DOM rect is slow.
+        // Let's assume standard dimensions for now or try to get from Model if possible.
+        // In CanvasController.fitToContent, we did this logic.
+
+        // Copy logic from fitToContent roughly
+        // We need imports or NODE_TYPES.
+        // Let's just use node.width/height for now.
+
+        const h =
+          node.expanded && node.category === "hardware" ? 280 : node.height; // approximate
+
+        minX = Math.min(minX, node.x);
+        minY = Math.min(minY, node.y);
+        maxX = Math.max(maxX, node.x + node.width);
+        maxY = Math.max(maxY, node.y + h);
+      }
+    });
+
+    if (minX === Infinity) return null;
+
+    const padding = 20;
+    return {
+      x: minX - padding,
+      y: minY - padding - 20, // Extra top padding for label
+      width: maxX - minX + padding * 2,
+      height: maxY - minY + padding * 2 + 20,
+    };
+  }
+
+  updateGroupsForNode(nodeId) {
+    // Find all groups containing this node
+    this.app.diagram.groups.forEach((group) => {
+      if (group.nodeIds.includes(nodeId)) {
+        this.renderGroup(group);
+      }
+    });
   }
 }

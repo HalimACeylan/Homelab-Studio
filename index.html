@@ -458,6 +458,7 @@
           </div>
           <div class="canvas-wrapper" id="canvas-wrapper">
             <svg class="canvas-grid" id="canvas-grid"></svg>
+            <div class="groups-layer" id="groups-layer"></div>
             <svg class="connections-layer" id="connections-layer"></svg>
             <div class="nodes-layer" id="nodes-layer"></div>
             <div class="canvas-overlay" id="canvas-overlay"></div>
@@ -587,6 +588,17 @@
           </svg>
           <span>Connect To...</span>
           <kbd>C</kbd>
+        </button>
+        </button>
+        <button class="context-item" data-action="group-network">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <rect x="3" y="3" width="7" height="7"></rect>
+             <rect x="14" y="3" width="7" height="7"></rect>
+             <rect x="14" y="14" width="7" height="7"></rect>
+             <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Group as Network</span>
+          <kbd>G</kbd>
         </button>
       </div>
 

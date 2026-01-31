@@ -9,6 +9,7 @@ export class DiagramManager {
   constructor() {
     this.nodes = new Map();
     this.connections = new Map();
+    this.groups = new Map();
     this.metadata = {
       name: "Untitled Diagram",
       created: new Date().toISOString(),
@@ -253,9 +254,42 @@ export class DiagramManager {
     return connData;
   }
 
+  createGroup(nodeIds, name = "Network Group") {
+    const id = generateId("group");
+    const group = {
+      id,
+      name,
+      nodeIds: [...nodeIds], // Copy array
+      type: "network",
+      color: "#58a6ff", // default color
+    };
+    this.groups.set(id, group);
+    this.updateModified();
+    return group;
+  }
+
+  updateGroup(groupId, updates) {
+    const group = this.groups.get(groupId);
+    if (!group) return null;
+    Object.assign(group, updates);
+    this.updateModified();
+    return group;
+  }
+
+  removeGroup(groupId) {
+    this.groups.delete(groupId);
+    this.updateModified();
+  }
+
+  importGroup(groupData) {
+    this.groups.set(groupData.id, { ...groupData });
+    return groupData;
+  }
+
   clear() {
     this.nodes.clear();
     this.connections.clear();
+    this.groups.clear();
     this.metadata.modified = new Date().toISOString();
   }
 
@@ -268,7 +302,9 @@ export class DiagramManager {
       version: "1.0.0",
       metadata: this.metadata,
       nodes: Array.from(this.nodes.values()),
+      nodes: Array.from(this.nodes.values()),
       connections: Array.from(this.connections.values()),
+      groups: Array.from(this.groups.values()),
     };
   }
 

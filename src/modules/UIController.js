@@ -127,6 +127,18 @@ export class UIController {
     this.contextNodeId = nodeId;
     this.contextConnectionId = connectionId;
 
+    // Adjust for Multi-Select
+    const groupBtn = this.contextMenu.querySelector(
+      '[data-action="group-network"]'
+    );
+    const isMultiSelect =
+      this.app.canvas.selectedNodeIds &&
+      this.app.canvas.selectedNodeIds.size > 1;
+
+    if (groupBtn) {
+      groupBtn.style.display = isMultiSelect ? "flex" : "none";
+    }
+
     // Position menu
     this.contextMenu.style.left = `${x}px`;
     this.contextMenu.style.top = `${y}px`;
@@ -177,6 +189,17 @@ export class UIController {
       case "connect":
         if (this.contextNodeId) {
           this.startConnecting(this.contextNodeId);
+        }
+        break;
+      case "group-network":
+        // Group currently selected nodes
+        if (
+          this.app.canvas.selectedNodeIds &&
+          this.app.canvas.selectedNodeIds.size > 1
+        ) {
+          this.app.createGroup(Array.from(this.app.canvas.selectedNodeIds));
+        } else if (this.contextNodeId) {
+          this.showToast("Select multiple nodes to group", "warning");
         }
         break;
     }
