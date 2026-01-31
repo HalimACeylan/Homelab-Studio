@@ -156,6 +156,31 @@ export class UIController {
       this.populateGroupsSubmenu();
     }
 
+    // Show/hide "Remove from Group" based on whether node(s) are in any group
+    const removeFromGroupBtn = this.contextMenu.querySelector(
+      '[data-action="remove-from-group"]'
+    );
+    let nodeIsInGroup = false;
+
+    if (nodeId) {
+      // Check if this single node is in any group
+      nodeIsInGroup = Array.from(this.app.diagram.groups.values()).some(
+        (group) => group.nodeIds.includes(nodeId)
+      );
+    } else if (isMultiSelect) {
+      // Check if any selected node is in a group
+      const selectedIds = Array.from(this.app.canvas.selectedNodeIds);
+      nodeIsInGroup = selectedIds.some((id) =>
+        Array.from(this.app.diagram.groups.values()).some((group) =>
+          group.nodeIds.includes(id)
+        )
+      );
+    }
+
+    if (removeFromGroupBtn) {
+      removeFromGroupBtn.style.display = nodeIsInGroup ? "flex" : "none";
+    }
+
     // Position menu
     this.contextMenu.style.left = `${x}px`;
     this.contextMenu.style.top = `${y}px`;
@@ -221,6 +246,63 @@ export class UIController {
           this.app.createGroup(Array.from(this.app.canvas.selectedNodeIds));
         } else if (this.contextNodeId) {
           this.showToast("Select multiple nodes to group", "warning");
+        }
+        break;
+      case "remove-from-group":
+        // Remove node(s) from their group(s)
+        let nodesToRemove = [];
+        if (this.contextNodeId) {
+          nodesToRemove = [this.contextNodeId];
+        } else if (this.app.canvas.selectedNodeIds) {
+          nodesToRemove = Array.from(this.app.canvas.selectedNodeIds);
+        }
+
+        let removedCount = 0;
+        const groupsToUpdate = new Set();
+
+        // Find and remove nodes from their groups
+        this.app.diagram.groups.forEach((group, groupId) => {
+          nodesToRemove.forEach((nodeId) => {
+            if (group.nodeIds.includes(nodeId)) {
+              group.nodeIds = group.nodeIds.filter((id) => id !== nodeId);
+              groupsToUpdate.add(groupId);
+              removedCount++;
+
+              // Reset node title color
+              const nodeEl = document.querySelector(
+                `[data-node-id="${nodeId}"]`
+              );
+              if (nodeEl) {
+                const titleEl = nodeEl.querySelector(".node-title");
+                if (titleEl) {
+                  titleEl.style.color = "";
+                }
+              }
+            }
+          });
+
+          // If group is now empty, delete it
+          if (group.nodeIds.length === 0) {
+            this.app.diagram.removeGroup(groupId);
+            const el = document.querySelector(`[data-group-id="${groupId}"]`);
+            if (el) el.remove();
+          }
+        });
+
+        // Update remaining groups
+        groupsToUpdate.forEach((groupId) => {
+          const group = this.app.diagram.groups.get(groupId);
+          if (group && group.nodeIds.length > 0) {
+            this.app.canvas.renderGroup(group);
+          }
+        });
+
+        if (removedCount > 0) {
+          this.app.diagram.updateModified();
+          this.showToast(
+            `Removed ${removedCount} node(s) from group(s)`,
+            "success"
+          );
         }
         break;
     }

@@ -1643,11 +1643,17 @@ body {
 .canvas-group {
   position: absolute;
   border: 2px solid var(--group-color, rgba(88, 166, 255, 0.8));
-  background: transparent;
-  border-radius: 4px;
+  background: color-mix(in srgb, var(--group-color, #58a6ff) 3%, transparent); /* Very subtle background tint */
+  border-radius: 8px;
   pointer-events: none; /* Let clicks pass through to nodes inside */
   z-index: 5;
   transition: all 0.2s ease-out;
+  /* Add subtle shadow for depth and separation */
+  box-shadow: 8px 0 0 8px rgba(0, 0, 0, 0.05),
+              0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Add thick outline to create actual spacing between groups */
+  outline: 6px solid var(--bg-primary);
+  outline-offset: 2px;
 }
 
 .group-label {
