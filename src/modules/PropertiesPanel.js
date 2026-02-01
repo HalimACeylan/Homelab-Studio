@@ -349,16 +349,20 @@ export class PropertiesPanel {
 
     document.getElementById("prop-width")?.addEventListener("change", (e) => {
       const width = parseInt(e.target.value, 10);
-      this.app.diagram.updateNode(nodeId, { width });
-      const element = document.querySelector(`[data-node-id="${nodeId}"]`);
-      if (element) element.style.width = `${width}px`;
+      const node = this.app.diagram.nodes.get(nodeId);
+      if (node) {
+        this.app.diagram.updateNode(nodeId, { width });
+        this.app.nodeRenderer.updateNodeElement(nodeId, node);
+      }
     });
 
     document.getElementById("prop-height")?.addEventListener("change", (e) => {
       const height = parseInt(e.target.value, 10);
-      this.app.diagram.updateNode(nodeId, { height });
-      const element = document.querySelector(`[data-node-id="${nodeId}"]`);
-      if (element) element.style.height = `${height}px`;
+      const node = this.app.diagram.nodes.get(nodeId);
+      if (node) {
+        this.app.diagram.updateNode(nodeId, { height });
+        this.app.nodeRenderer.updateNodeElement(nodeId, node);
+      }
     });
 
     // Actions

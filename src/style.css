@@ -1469,8 +1469,112 @@ body {
   z-index: 10;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow resizers to overlap edges */
   pointer-events: auto;
+  box-sizing: border-box;
+  min-height: 50px; /* Absolute minimum for visibility */
+}
+
+/* Ensure node content is still clipped/contained */
+.node-header,
+.node-footer {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.node-content {
+  width: 100%;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0; /* Crucial for flexbox scrollbars to work */
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* Node Resizers */
+.node-resizer {
+  position: absolute;
+  background: transparent;
+  z-index: 50;
+  transition: background var(--transition-fast);
+}
+
+.node-resizer:hover {
+  background: rgba(88, 166, 255, 0.4);
+}
+
+.resizer-top {
+  top: -4px;
+  left: 10px;
+  right: 10px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resizer-bottom {
+  bottom: -4px;
+  left: 10px;
+  right: 10px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resizer-left {
+  left: -4px;
+  top: 10px;
+  bottom: 10px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.resizer-right {
+  right: -4px;
+  top: 10px;
+  bottom: 10px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.resizer-top-left {
+  top: -4px;
+  left: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+  border-radius: 50%;
+}
+
+.resizer-top-right {
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nesw-resize;
+  border-radius: 50%;
+}
+
+.resizer-bottom-left {
+  bottom: -4px;
+  left: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nesw-resize;
+  border-radius: 50%;
+}
+
+.resizer-bottom-right {
+  bottom: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+  border-radius: 50%;
+}
+
+.canvas-node.resizing {
+  border-color: var(--accent-blue);
+  transition: none;
 }
 
 .canvas-node:hover {

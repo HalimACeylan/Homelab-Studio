@@ -260,9 +260,9 @@ export class NodeRenderer {
            data-node-type="${node.type}"
            style="left: ${node.x}px; top: ${node.y}px; width: ${
       node.width
-    }px; min-height: ${height}px; z-index: ${node.zIndex || 1}; --node-color: ${
-      nodeType.color
-    };">
+    }px; height: ${node.height || height}px; z-index: ${
+      node.zIndex || 1
+    }; --node-color: ${nodeType.color};">
         
         <div class="node-header">
           <div class="node-icon" style="color: ${nodeType.color}">
@@ -280,6 +280,7 @@ export class NodeRenderer {
           </div>
         </div>
 
+        <div class="node-content">
         ${
           isHardware
             ? `
@@ -393,11 +394,22 @@ export class NodeRenderer {
         `
             : ""
         }
+        </div>
 
         <div class="node-ports">
           <div class="node-port port-left" data-port="left"></div>
           <div class="node-port port-right" data-port="right"></div>
         </div>
+
+        <!-- Resize Handles -->
+        <div class="node-resizer resizer-top" data-resize="top"></div>
+        <div class="node-resizer resizer-bottom" data-resize="bottom"></div>
+        <div class="node-resizer resizer-left" data-resize="left"></div>
+        <div class="node-resizer resizer-right" data-resize="right"></div>
+        <div class="node-resizer resizer-top-left" data-resize="top-left"></div>
+        <div class="node-resizer resizer-top-right" data-resize="top-right"></div>
+        <div class="node-resizer resizer-bottom-left" data-resize="bottom-left"></div>
+        <div class="node-resizer resizer-bottom-right" data-resize="bottom-right"></div>
       </div>
     `;
   }
@@ -459,6 +471,10 @@ export class NodeRenderer {
   updateNodeElement(nodeId, node) {
     const element = document.querySelector(`[data-node-id="${nodeId}"]`);
     if (!element) return;
+
+    // Update dimensions if they changed
+    element.style.width = `${node.width}px`;
+    element.style.height = `${node.height}px`;
 
     const nodeType = NODE_TYPES[node.type] || NODE_TYPES.server;
 
@@ -629,6 +645,27 @@ export class NodeRenderer {
         appsContainer.classList.remove("has-apps");
         appsContainer.innerHTML =
           '<div class="node-apps-grid"><span class="no-apps">Drop apps or OS here</span></div>';
+      }
+    }
+
+    // Auto-growth check: if content overflows, expand the node
+    const contentEl = element.querySelector(".node-content");
+    if (contentEl) {
+      const requiredHeight = contentEl.scrollHeight + 50; // content + header
+      if (requiredHeight > node.height) {
+        // Update model
+        this.app.diagram.updateNode(nodeId, { height: requiredHeight });
+        // Update self height in DOM
+        element.style.height = `${requiredHeight}px`;
+
+        // Update properties panel if this node is selected
+        if (this.app.properties.selectedNodeId === nodeId) {
+          const heightInput = document.getElementById("prop-height");
+          if (heightInput) heightInput.value = Math.round(requiredHeight);
+        }
+
+        // Notify app to update connections/groups (some apps might need this)
+        this.app.canvas.app.connections?.updateNodeConnections?.(nodeId);
       }
     }
   }

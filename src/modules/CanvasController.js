@@ -4,6 +4,7 @@
 
 import { snapToGrid, clamp, throttle } from "./utils.js";
 import { NodeRenderer } from "./NodeRenderer.js";
+import { NODE_TYPES } from "./nodeTypes.js";
 
 export class CanvasController {
   constructor(app) {
@@ -39,6 +40,12 @@ export class CanvasController {
 
     this.gridSize = 20;
     this.snapEnabled = true;
+
+    // Resizing state
+    this.isResizing = false;
+    this.resizingNodeId = null;
+    this.resizerType = null;
+    this.initialResizeState = null;
 
     this.setupEventListeners();
   }
@@ -97,6 +104,21 @@ export class CanvasController {
       if (groupElement) {
         const groupId = groupElement.dataset.groupId;
         this.app.selectGroup(groupId);
+      }
+      return;
+    }
+
+    // Handle resize handles
+    const resizerElement = e.target.closest(".node-resizer");
+    if (resizerElement) {
+      e.stopPropagation();
+      const nodeEl = resizerElement.closest(".canvas-node");
+      if (nodeEl) {
+        const nodeId = nodeEl.dataset.nodeId;
+        const type = resizerElement.dataset.resize;
+        e.preventDefault(); // Prevent text selection/drag issues
+        this.app.selectNode(nodeId); // Ensure node is selected for property panel sync
+        this.startResizing(nodeId, type, e);
       }
       return;
     }
@@ -224,6 +246,8 @@ export class CanvasController {
       this.updatePanning(e);
     } else if (this.isDragging && this.draggedNode) {
       this.updateDragging(e);
+    } else if (this.isResizing) {
+      this.updateResizing(e);
     } else if (this.isConnecting) {
       this.updateConnecting(e);
     } else if (this.isSelecting) {
@@ -236,6 +260,8 @@ export class CanvasController {
       this.stopPanning();
     } else if (this.isDragging) {
       this.stopDragging();
+    } else if (this.isResizing) {
+      this.stopResizing();
     } else if (this.isConnecting) {
       this.finishConnecting(e);
     } else if (this.isSelecting) {
@@ -410,9 +436,6 @@ export class CanvasController {
       const node = this.app.diagram.nodes.get(nodeId);
 
       // Add to history
-      // History for all selected nodes if applicable
-      // Simplified: Just push individual moves for now.
-      // Ideally should be a "move-nodes" transaction.
       if (this.selectedNodeIds.size > 0 && this.selectedNodeIds.has(nodeId)) {
         this.selectedNodeIds.forEach((id) => {
           const n = this.app.diagram.nodes.get(id);
@@ -420,22 +443,7 @@ export class CanvasController {
             this.app.history.push({
               type: "move-node",
               nodeId: id,
-              data: { x: n.x, y: n.y }, // Note: History logic usually needs PREVIOUS state to UNDO.
-              // Currently 'move-node' history implementation suggests it stores the NEW state or OLD state?
-              // Let's check Main.js undo/redo logic.
-              // Usually we need { oldX, oldY, newX, newY }.
-              // The current implementation seems simplistic and might be buggy for "Undo Move".
-              // "data" is pushed.
-              /* 
-                       undo() { ...
-                           case "move-node": 
-                               // Does it revert to previous??
-                               // If push stores CURRENT (new) state, how does it know OLD state?
-                               // It doesn't seem to store OLD state in data.
-                               // Let's assume the provided code is incomplete on History or uses "inverse" actions not shown.
-                               // Wait, usually we push the *action* that *was performed*.
-                               // To UNDO, we need the inverse.
-                       */
+              data: { x: n.x, y: n.y },
             });
           }
         });
@@ -450,6 +458,161 @@ export class CanvasController {
 
     this.isDragging = false;
     this.draggedNode = null;
+  }
+
+  // Resizing nodes
+  startResizing(nodeId, type, e) {
+    this.isResizing = true;
+    this.resizingNodeId = nodeId;
+    this.resizerType = type;
+
+    const node = this.app.diagram.nodes.get(nodeId);
+    if (!node) return;
+
+    const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+    let dynamicMinHeight = 100;
+
+    if (nodeEl) {
+      nodeEl.classList.add("resizing");
+      // Measure actual content height
+      const contentEl = nodeEl.querySelector(".node-content");
+      if (contentEl) {
+        // scrollHeight + header height (approx 50px) + padding
+        dynamicMinHeight = contentEl.scrollHeight + 50;
+      }
+    }
+
+    this.initialResizeState = {
+      width: node.width,
+      height: node.height,
+      x: node.x,
+      y: node.y,
+      mouseX: e.clientX,
+      mouseY: e.clientY,
+      minHeight: dynamicMinHeight,
+    };
+
+    this.wrapper.classList.add("resizing-active");
+  }
+
+  updateResizing(e) {
+    if (!this.isResizing || !this.resizingNodeId || !this.initialResizeState)
+      return;
+
+    const node = this.app.diagram.nodes.get(this.resizingNodeId);
+    if (!node) return;
+
+    const dx = (e.clientX - this.initialResizeState.mouseX) / this.scale;
+    const dy = (e.clientY - this.initialResizeState.mouseY) / this.scale;
+
+    let newX = this.initialResizeState.x;
+    let newY = this.initialResizeState.y;
+    let newWidth = this.initialResizeState.width;
+    let newHeight = this.initialResizeState.height;
+
+    const nodeType = NODE_TYPES[node.type] || NODE_TYPES.server;
+    const minWidth = nodeType.minWidth || 200;
+    const minHeight = this.initialResizeState.minHeight || 100;
+
+    // Horizontal Resizing
+    if (this.resizerType.includes("right")) {
+      newWidth = Math.max(minWidth, this.initialResizeState.width + dx);
+      if (this.snapEnabled) newWidth = snapToGrid(newWidth, this.gridSize);
+    } else if (this.resizerType.includes("left")) {
+      const potentialWidth = this.initialResizeState.width - dx;
+      if (potentialWidth >= minWidth) {
+        newWidth = potentialWidth;
+        newX = this.initialResizeState.x + dx;
+        if (this.snapEnabled) {
+          const snappedX = snapToGrid(newX, this.gridSize);
+          const diff = snappedX - newX;
+          newX = snappedX;
+          newWidth -= diff;
+        }
+      }
+    }
+
+    // Vertical Resizing
+    if (this.resizerType.includes("bottom")) {
+      newHeight = Math.max(minHeight, this.initialResizeState.height + dy);
+      if (this.snapEnabled) newHeight = snapToGrid(newHeight, this.gridSize);
+    } else if (this.resizerType.includes("top")) {
+      const potentialHeight = this.initialResizeState.height - dy;
+      if (potentialHeight >= minHeight) {
+        newHeight = potentialHeight;
+        newY = this.initialResizeState.y + dy;
+        if (this.snapEnabled) {
+          const snappedY = snapToGrid(newY, this.gridSize);
+          const diff = snappedY - newY;
+          newY = snappedY;
+          newHeight -= diff;
+        }
+      }
+    }
+
+    // Update Model
+    this.app.diagram.updateNode(this.resizingNodeId, {
+      x: newX,
+      y: newY,
+      width: newWidth,
+      height: newHeight,
+    });
+
+    // Update DOM
+    const el = document.querySelector(
+      `[data-node-id="${this.resizingNodeId}"]`
+    );
+    if (el) {
+      el.style.left = `${newX}px`;
+      el.style.top = `${newY}px`;
+      el.style.width = `${newWidth}px`;
+      el.style.height = `${newHeight}px`;
+    }
+
+    // Update connections and groups
+    this.app.connections.updateNodeConnections(this.resizingNodeId);
+    this.updateGroupsForNode(this.resizingNodeId);
+
+    // Update properties panel if visible
+    if (this.app.properties.selectedNodeId === this.resizingNodeId) {
+      const xInput = document.getElementById("prop-x");
+      const yInput = document.getElementById("prop-y");
+      const widthInput = document.getElementById("prop-width");
+      const heightInput = document.getElementById("prop-height");
+      if (xInput) xInput.value = Math.round(newX);
+      if (yInput) yInput.value = Math.round(newY);
+      if (widthInput) widthInput.value = Math.round(newWidth);
+      if (heightInput) heightInput.value = Math.round(newHeight);
+    }
+  }
+
+  stopResizing() {
+    if (this.isResizing && this.resizingNodeId) {
+      const node = this.app.diagram.nodes.get(this.resizingNodeId);
+      if (node) {
+        this.app.history.push({
+          type: "resize-node",
+          nodeId: this.resizingNodeId,
+          data: {
+            x: node.x,
+            y: node.y,
+            width: node.width,
+            height: node.height,
+          },
+        });
+      }
+
+      const nodeEl = document.querySelector(
+        `[data-node-id="${this.resizingNodeId}"]`
+      );
+      if (nodeEl) nodeEl.classList.remove("resizing");
+    }
+
+    this.isResizing = false;
+    this.resizingNodeId = null;
+    this.resizerType = null;
+    this.initialResizeState = null;
+    this.wrapper.classList.remove("resizing-active");
   }
 
   // Connecting
