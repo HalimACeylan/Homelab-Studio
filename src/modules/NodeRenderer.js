@@ -32,10 +32,6 @@ export class NodeRenderer {
         <rect x="3" y="3" width="18" height="18" rx="2"></rect>
         <path d="M9 9h6v6H9z"></path>
       </svg>`,
-      "custom-v-os": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-        <path d="M8 8h8v8H8z"></path>
-      </svg>`,
 
       // Specific node icons
       server: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -161,12 +157,14 @@ export class NodeRenderer {
       if (envData) {
         stats.totalRam += envData.avgRamMB;
         stats.totalCpu += envData.avgCpuGhz;
+        stats.totalStorage += envData.minStorageGB || 20;
       }
       (env.applications || []).forEach((appId) => {
         const appData = this.resources.applications[appId];
         if (appData) {
           stats.totalRam += appData.avgRamMB;
           stats.totalCpu += appData.avgCpuGhz;
+          stats.totalStorage += appData.avgStorageGB || 5;
         }
       });
       if (env.osEnvironments) {
@@ -184,7 +182,7 @@ export class NodeRenderer {
       this.resources.hardware_defaults.server;
     const apps = node.applications || [];
 
-    let stats = { totalRam: 0, totalCpu: 0 };
+    let stats = { totalRam: 0, totalCpu: 0, totalStorage: 0 };
 
     // Add base OS resources
     const osType = node.properties.os?.toLowerCase();
@@ -192,6 +190,7 @@ export class NodeRenderer {
     if (osData) {
       stats.totalRam += osData.avgRamMB;
       stats.totalCpu += osData.avgCpuGhz;
+      stats.totalStorage += osData.minStorageGB || 20;
     }
 
     // Add OS Environments and their apps (recursive)
@@ -202,19 +201,41 @@ export class NodeRenderer {
       if (appData) {
         stats.totalRam += appData.avgRamMB;
         stats.totalCpu += appData.avgCpuGhz;
+        stats.totalStorage += appData.avgStorageGB || 5;
       }
     });
+
+    // Parse user-defined capacities from properties if they exist
+    // Use defaults only if property is missing or invalid
+    const parseSpec = (val, fallback) => {
+      if (!val) return fallback;
+      const num = parseFloat(String(val).replace(/[^0-9.]/g, ""));
+      return isNaN(num) ? fallback : num;
+    };
+
+    const maxCpu = parseSpec(node.properties.cpu, hwDefaults.maxCpuGhz);
+    const maxRamGB = parseSpec(node.properties.ram, null);
+    const maxRam = maxRamGB ? maxRamGB * 1024 : hwDefaults.maxRamMB;
+    const maxStorage = parseSpec(
+      node.properties.storage,
+      hwDefaults.maxStorageGB || 1024
+    );
 
     return {
       ram: {
         used: stats.totalRam,
-        max: hwDefaults.maxRamMB,
-        percent: Math.min(100, (stats.totalRam / hwDefaults.maxRamMB) * 100),
+        max: maxRam,
+        percent: Math.min(100, (stats.totalRam / maxRam) * 100),
       },
       cpu: {
         used: stats.totalCpu,
-        max: hwDefaults.maxCpuGhz,
-        percent: Math.min(100, (stats.totalCpu / hwDefaults.maxCpuGhz) * 100),
+        max: maxCpu,
+        percent: Math.min(100, (stats.totalCpu / maxCpu) * 100),
+      },
+      storage: {
+        used: stats.totalStorage,
+        max: maxStorage,
+        percent: Math.min(100, (stats.totalStorage / maxStorage) * 100),
       },
     };
   }
@@ -255,11 +276,8 @@ export class NodeRenderer {
             <span class="node-title">${
               node.properties.name || nodeType.defaultName
             }</span>
-            <span class="node-subtitle">${
-              node.properties.ip || node.type
-            }</span>
+            <span class="node-subtitle">${node.properties.ip || ""}</span>
           </div>
-          <div class="node-status ${node.properties.status || "online"}"></div>
         </div>
 
         ${
@@ -289,6 +307,18 @@ export class NodeRenderer {
                    ? "warning"
                    : "normal"
                }" style="width: ${resourceLoad.ram.percent}%"></div></div>
+             </div>
+             <div class="load-bar-group">
+               <div class="load-label"><span>Storage</span> <span>${resourceLoad.storage.percent.toFixed(
+                 0
+               )}%</span></div>
+               <div class="load-bar"><div class="load-fill storage" data-load-level="${
+                 resourceLoad.storage.percent > 90
+                   ? "critical"
+                   : resourceLoad.storage.percent > 70
+                   ? "warning"
+                   : "normal"
+               }" style="width: ${resourceLoad.storage.percent}%"></div></div>
              </div>
           </div>
 

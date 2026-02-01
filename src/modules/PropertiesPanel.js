@@ -35,6 +35,7 @@ export class PropertiesPanel {
 
   showNodeProperties(node) {
     const nodeType = NODE_TYPES[node.type] || NODE_TYPES.server;
+    const resourceLoad = this.app.canvas.nodeRenderer.calculateResources(node);
 
     this.content.innerHTML = `
       <div class="property-group">
@@ -47,11 +48,6 @@ export class PropertiesPanel {
                  }" placeholder="Enter name...">
         </div>
         <div class="property-row">
-          <label class="property-label" for="prop-type">Type</label>
-          <input type="text" class="property-input" id="prop-type" 
-                 value="${nodeType.description}" disabled>
-        </div>
-        <div class="property-row">
           <label class="property-label" for="prop-description">Description</label>
           <textarea class="property-input" id="prop-description" 
                     placeholder="Add a description...">${
@@ -60,23 +56,56 @@ export class PropertiesPanel {
         </div>
       </div>
 
+      ${
+        resourceLoad
+          ? `
       <div class="property-group">
-        <div class="property-group-title">Status</div>
-        <div class="property-row">
-          <label class="property-label" for="prop-status">Status</label>
-          <select class="property-select" id="prop-status">
-            <option value="online" ${
-              node.properties.status === "online" ? "selected" : ""
-            }>Online</option>
-            <option value="offline" ${
-              node.properties.status === "offline" ? "selected" : ""
-            }>Offline</option>
-            <option value="warning" ${
-              node.properties.status === "warning" ? "selected" : ""
-            }>Warning</option>
-          </select>
+        <div class="property-group-title">Resource Load</div>
+        <div class="property-resource-group">
+          <div class="resource-row">
+            <div class="resource-info">
+              <span class="resource-label">CPU</span>
+              <span class="resource-value">${resourceLoad.cpu.percent.toFixed(
+                0
+              )}%</span>
+            </div>
+            <div class="resource-bar-bg">
+              <div class="resource-bar-fill cpu" style="width: ${
+                resourceLoad.cpu.percent
+              }%"></div>
+            </div>
+          </div>
+          <div class="resource-row">
+            <div class="resource-info">
+              <span class="resource-label">RAM</span>
+              <span class="resource-value">${resourceLoad.ram.percent.toFixed(
+                0
+              )}%</span>
+            </div>
+            <div class="resource-bar-bg">
+              <div class="resource-bar-fill ram" style="width: ${
+                resourceLoad.ram.percent
+              }%"></div>
+            </div>
+          </div>
+          <div class="resource-row">
+            <div class="resource-info">
+              <span class="resource-label">Storage</span>
+              <span class="resource-value">${resourceLoad.storage.percent.toFixed(
+                0
+              )}%</span>
+            </div>
+            <div class="resource-bar-bg">
+              <div class="resource-bar-fill storage" style="width: ${
+                resourceLoad.storage.percent
+              }%"></div>
+            </div>
+          </div>
         </div>
       </div>
+      `
+          : ""
+      }
 
       <div class="property-group">
         <div class="property-group-title">Network</div>
@@ -112,24 +141,53 @@ export class PropertiesPanel {
                    node.properties.os || ""
                  }" placeholder="e.g., Ubuntu 22.04">
         </div>
-        <div class="property-row">
-          <label class="property-label" for="prop-cpu">CPU</label>
-          <input type="text" class="property-input" id="prop-cpu" 
-                 value="${
-                   node.properties.cpu || ""
-                 }" placeholder="e.g., Intel i7-12700">
+        
+        <!-- CPU Spec -->
+        <div class="spec-input-container">
+          <div class="spec-header">
+            <label class="property-label">CPU Capacity</label>
+            <div style="display: flex; align-items: center;">
+              <input type="number" step="0.1" min="0.1" max="10.0" 
+                     class="spec-numeric-input" id="prop-cpu-num" 
+                     value="${parseFloat(node.properties.cpu) || 1.0}">
+              <span class="spec-unit">GHz</span>
+            </div>
+          </div>
+          <input type="range" step="0.1" min="0.1" max="10.0" 
+                 class="spec-slider cpu" id="prop-cpu-range" 
+                 value="${parseFloat(node.properties.cpu) || 1.0}">
         </div>
-        <div class="property-row">
-          <label class="property-label" for="prop-ram">RAM</label>
-          <input type="text" class="property-input" id="prop-ram" 
-                 value="${node.properties.ram || ""}" placeholder="e.g., 32GB">
+
+        <!-- RAM Spec -->
+        <div class="spec-input-container">
+          <div class="spec-header">
+            <label class="property-label">RAM Capacity</label>
+            <div style="display: flex; align-items: center;">
+              <input type="number" step="1" min="1" max="512" 
+                     class="spec-numeric-input" id="prop-ram-num" 
+                     value="${parseInt(node.properties.ram) || 4}">
+              <span class="spec-unit">GB</span>
+            </div>
+          </div>
+          <input type="range" step="1" min="1" max="512" 
+                 class="spec-slider ram" id="prop-ram-range" 
+                 value="${parseInt(node.properties.ram) || 4}">
         </div>
-        <div class="property-row">
-          <label class="property-label" for="prop-storage">Storage</label>
-          <input type="text" class="property-input" id="prop-storage" 
-                 value="${
-                   node.properties.storage || ""
-                 }" placeholder="e.g., 1TB SSD">
+
+        <!-- Storage Spec -->
+        <div class="spec-input-container">
+          <div class="spec-header">
+            <label class="property-label">Storage Capacity</label>
+            <div style="display: flex; align-items: center;">
+              <input type="number" step="10" min="10" max="8192" 
+                     class="spec-numeric-input" id="prop-storage-num" 
+                     value="${parseInt(node.properties.storage) || 100}">
+              <span class="spec-unit">GB</span>
+            </div>
+          </div>
+          <input type="range" step="10" min="10" max="8192" 
+                 class="spec-slider storage" id="prop-storage-range" 
+                 value="${parseInt(node.properties.storage) || 100}">
         </div>
       </div>
 
@@ -218,20 +276,34 @@ export class PropertiesPanel {
       this.updateNodeProperty(nodeId, "os", e.target.value);
     });
 
-    // CPU
-    document.getElementById("prop-cpu")?.addEventListener("input", (e) => {
-      this.updateNodeProperty(nodeId, "cpu", e.target.value);
-    });
+    // Helper for dual input sync
+    const setupDualInput = (idPrefix, propName, maxVal) => {
+      const numInput = document.getElementById(`prop-${idPrefix}-num`);
+      const rangeInput = document.getElementById(`prop-${idPrefix}-range`);
 
-    // RAM
-    document.getElementById("prop-ram")?.addEventListener("input", (e) => {
-      this.updateNodeProperty(nodeId, "ram", e.target.value);
-    });
+      if (!numInput || !rangeInput) return;
 
-    // Storage
-    document.getElementById("prop-storage")?.addEventListener("input", (e) => {
-      this.updateNodeProperty(nodeId, "storage", e.target.value);
-    });
+      const update = (val) => {
+        let numericVal = parseFloat(val);
+        if (isNaN(numericVal)) return;
+
+        // Clamp
+        if (numericVal > maxVal) numericVal = maxVal;
+        if (numericVal < 0.1 && idPrefix === "cpu") numericVal = 0.1;
+        if (numericVal < 1 && idPrefix !== "cpu") numericVal = 1;
+
+        numInput.value = numericVal;
+        rangeInput.value = numericVal;
+        this.updateNodeProperty(nodeId, propName, numericVal);
+      };
+
+      numInput.addEventListener("input", (e) => update(e.target.value));
+      rangeInput.addEventListener("input", (e) => update(e.target.value));
+    };
+
+    setupDualInput("cpu", "cpu", 10.0);
+    setupDualInput("ram", "ram", 512);
+    setupDualInput("storage", "storage", 8192);
 
     // Position
     document.getElementById("prop-x")?.addEventListener("change", (e) => {
