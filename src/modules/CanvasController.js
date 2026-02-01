@@ -553,6 +553,7 @@ export class CanvasController {
 
     this.selectedNodeId = null;
     this.selectedConnectionId = null;
+    this.selectedGroupId = null;
     if (this.selectedNodeIds) {
       this.selectedNodeIds.forEach((id) => {
         const element = document.querySelector(`[data-node-id="${id}"]`);
@@ -674,7 +675,7 @@ export class CanvasController {
         }
       }
     });
-}
+  }
 
   finishSelection() {
     this.isSelecting = false;

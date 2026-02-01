@@ -43,6 +43,20 @@ export class KeyboardController {
         const count = this.app.canvas.selectedConnectionIds.size;
         this.app.removeSelectedConnections();
         this.app.ui.showToast(`${count} connection(s) deleted`, "success");
+      } else if (this.app.canvas.selectedGroupId) {
+        e.preventDefault();
+        const groupId = this.app.canvas.selectedGroupId;
+        const group = this.app.diagram.groups.get(groupId);
+        if (group) {
+          this.app.diagram.removeGroup(groupId);
+          const groupEl = document.querySelector(
+            `[data-group-id="${groupId}"]`
+          );
+          if (groupEl) groupEl.remove();
+          this.app.canvas.selectedGroupId = null;
+          this.app.properties.clear();
+          this.app.ui.showToast("Group deleted", "success");
+        }
       } else if (this.app.canvas.selectedNodeId) {
         e.preventDefault();
         const id = this.app.canvas.selectedNodeId;
@@ -246,6 +260,7 @@ export class KeyboardController {
       const hasSelection =
         this.app.canvas.selectedNodeId ||
         this.app.canvas.selectedConnectionId ||
+        this.app.canvas.selectedGroupId ||
         (this.app.canvas.selectedNodeIds &&
           this.app.canvas.selectedNodeIds.size > 0);
 
