@@ -513,6 +513,20 @@ body {
   display: none;
 }
 
+/* Hardware Section */
+.palette-section[data-section="hardware"] .palette-section-header {
+  color: var(--accent-blue);
+}
+
+.palette-section[data-section="hardware"] .palette-section-header:hover {
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.palette-section[data-section="hardware"] .palette-item {
+  border-left: 2px solid var(--accent-blue);
+}
+
+/* V-OS Section */
 .palette-section[data-section="v-os"] .palette-section-header {
   color: var(--accent-purple);
 }
@@ -523,6 +537,45 @@ body {
 
 .palette-section[data-section="v-os"] .palette-item {
   border-left: 2px solid var(--accent-purple);
+}
+
+/* Network Section */
+.palette-section[data-section="network"] .palette-section-header {
+  color: var(--accent-green);
+}
+
+.palette-section[data-section="network"] .palette-section-header:hover {
+  background: rgba(63, 185, 80, 0.1);
+}
+
+.palette-section[data-section="network"] .palette-item {
+  border-left: 2px solid var(--accent-green);
+}
+
+/* Operating System Section */
+.palette-section[data-section="operating-system"] .palette-section-header {
+  color: var(--accent-orange);
+}
+
+.palette-section[data-section="operating-system"] .palette-section-header:hover {
+  background: rgba(210, 153, 34, 0.1);
+}
+
+.palette-section[data-section="operating-system"] .palette-item {
+  border-left: 2px solid var(--accent-orange);
+}
+
+/* Applications Section */
+.palette-section[data-section="applications"] .palette-section-header {
+  color: var(--accent-cyan);
+}
+
+.palette-section[data-section="applications"] .palette-section-header:hover {
+  background: rgba(57, 197, 207, 0.1);
+}
+
+.palette-section[data-section="applications"] .palette-item {
+  border-left: 2px solid var(--accent-cyan);
 }
 
 .palette-items {
