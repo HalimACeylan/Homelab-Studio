@@ -194,6 +194,7 @@ export const APPLICATION_TYPES = {
     name: "Docker",
     icon: "docker",
     color: "#2496ed",
+    category: "v-os", // Behaves like a hypervisor - can hold apps and OS
     description: "Container runtime",
   },
   plex: {

@@ -1,4 +1,4 @@
-import { OS_TYPES } from "./nodeTypes.js";
+import { OS_TYPES, APPLICATION_TYPES } from "./nodeTypes.js";
 
 export class PaletteController {
   constructor(app) {
@@ -176,9 +176,11 @@ export class PaletteController {
               targetEnvId
             );
 
-            // Check if target OS type is a V-OS
+            // Check if target OS type is a V-OS (check both OS_TYPES and APPLICATION_TYPES)
             if (targetEnv && targetEnv.typeId) {
-              const osInfo = OS_TYPES[targetEnv.typeId];
+              const osInfo =
+                OS_TYPES[targetEnv.typeId] ||
+                APPLICATION_TYPES[targetEnv.typeId];
               if (osInfo && osInfo.category === "v-os") {
                 osEnvGroup.classList.add("drop-potential-inner");
               }
@@ -241,9 +243,11 @@ export class PaletteController {
               potentialParentId
             );
 
-            // Access OS_TYPES metadata
+            // Check both OS_TYPES and APPLICATION_TYPES for v-os category
             if (targetEnv && targetEnv.typeId) {
-              const osInfo = OS_TYPES[targetEnv.typeId];
+              const osInfo =
+                OS_TYPES[targetEnv.typeId] ||
+                APPLICATION_TYPES[targetEnv.typeId];
               if (osInfo && osInfo.category === "v-os") {
                 parentEnvId = potentialParentId;
               }

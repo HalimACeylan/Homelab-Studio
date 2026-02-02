@@ -3,7 +3,7 @@
  */
 
 import { generateId } from "./utils.js";
-import { NODE_TYPES } from "./nodeTypes.js";
+import { NODE_TYPES, APPLICATION_TYPES } from "./nodeTypes.js";
 
 export class DiagramManager {
   constructor() {
@@ -128,6 +128,16 @@ export class DiagramManager {
     // Ensure backwards compatibility
     if (!node.applications) node.applications = [];
     if (!node.osEnvironments) node.osEnvironments = [];
+
+    // Check if this application should behave as an OS environment (like Docker)
+    const appInfo = APPLICATION_TYPES[appType];
+    const isVOSApp = appInfo && appInfo.category === "v-os";
+
+    // If it's a v-os application (like Docker), create it as an OS environment
+    if (isVOSApp) {
+      const envName = appInfo.name;
+      return this.addOSEnvironment(nodeId, envName, appType, osEnvId);
+    }
 
     // If osEnvId is provided, add to that environment (recursive search)
     if (osEnvId) {
