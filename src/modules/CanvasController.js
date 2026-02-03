@@ -1039,6 +1039,11 @@ export class CanvasController {
     // Clear current selection
     this.clearSelection();
 
+    // Start history batch
+    if (this.app.history) {
+      this.app.history.startBatch();
+    }
+
     const newNodeIds = [];
     const idMap = new Map(); // Map old ID -> new ID
     const offset = 30; // Offset for pasted nodes
@@ -1076,6 +1081,15 @@ export class CanvasController {
 
       // Render the new node
       this.renderNode(newNode);
+
+      // Push to history
+      if (this.app.history) {
+        this.app.history.push({
+          type: "add-node",
+          nodeId: newId,
+          data: { ...newNode },
+        });
+      }
     });
 
     // Paste connections if any
@@ -1088,6 +1102,7 @@ export class CanvasController {
 
         // Only create connection if both endpoints exist (they should)
         if (newSourceId && newTargetId) {
+          // addConnection handles history.push internally
           this.app.addConnection(newSourceId, newTargetId, {
             ...conn.properties,
             type: conn.type, // Ensure type is preserved
@@ -1095,6 +1110,11 @@ export class CanvasController {
           pastedConnections++;
         }
       });
+    }
+
+    // End history batch
+    if (this.app.history) {
+      this.app.history.endBatch("batch");
     }
 
     // Select the newly pasted nodes
