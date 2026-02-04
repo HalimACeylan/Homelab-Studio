@@ -177,6 +177,7 @@ export const OS_TYPES = {
 };
 
 // Applications that can be added as subnodes to hardware
+// Applications that can be added as subnodes to hardware
 export const APPLICATION_TYPES = {
   pihole: {
     name: "Pi-hole",
@@ -237,37 +238,37 @@ export const APPLICATION_TYPES = {
   // --- Network & Security ---
   frigate: {
     name: "Frigate NVR",
-    icon: "camera",
+    icon: "frigate",
     color: "#ef4444",
     description: "NVR with real-time object detection",
   },
   adguard: {
     name: "AdGuard Home",
-    icon: "dns",
+    icon: "adguard",
     color: "#68bc71",
     description: "Network-wide software for blocking ads & tracking",
   },
   traefik: {
     name: "Traefik",
-    icon: "web-server",
+    icon: "traefik",
     color: "#24a1c1",
     description: "Modern HTTP reverse proxy and load balancer",
   },
   wireguard: {
     name: "WireGuard",
-    icon: "vpn",
+    icon: "wireguard",
     color: "#88171a",
     description: "Fast, modern, secure VPN tunnel",
   },
   tailscale: {
     name: "Tailscale",
-    icon: "vpn",
+    icon: "tailscale",
     color: "#18181b",
     description: "Zero config VPN",
   },
   "cloudflare-dns": {
     name: "Cloudflare DNS",
-    icon: "dns",
+    icon: "cloudflare-dns",
     color: "#f38020",
     description: "DNS service",
   },
@@ -291,13 +292,13 @@ export const APPLICATION_TYPES = {
   },
   pfsense: {
     name: "pfSense",
-    icon: "router",
+    icon: "pfsense",
     color: "#212121",
     description: "Firewall and Router",
   },
   openwrt: {
     name: "OpenWrt",
-    icon: "router",
+    icon: "openwrt",
     color: "#dc0050",
     description: "Linux operating system targeting embedded devices",
   },
@@ -305,31 +306,31 @@ export const APPLICATION_TYPES = {
   // --- Media & Storage ---
   jellyfin: {
     name: "Jellyfin",
-    icon: "media",
+    icon: "jellyfin",
     color: "#00a4dc",
     description: "Free Software Media System",
   },
   photoprism: {
     name: "PhotoPrism",
-    icon: "media",
+    icon: "photoprism",
     color: "#aa00ff",
     description: "AI-Powered Photos App",
   },
   immich: {
     name: "Immich",
-    icon: "media",
+    icon: "immich",
     color: "#4285f4",
     description: "Self-hosted photo and video backup solution",
   },
   minio: {
     name: "MinIO",
-    icon: "cloud-storage",
+    icon: "minio",
     color: "#c72c48",
     description: "High Performance Object Storage",
   },
   syncthing: {
     name: "Syncthing",
-    icon: "cloud-storage",
+    icon: "syncthing",
     color: "#0882c8",
     description: "Continuous File Synchronization",
   },
@@ -337,31 +338,31 @@ export const APPLICATION_TYPES = {
   // --- Databases ---
   influxdb: {
     name: "InfluxDB",
-    icon: "database",
+    icon: "influxdb",
     color: "#22adf6",
     description: "Time series database",
   },
   redis: {
     name: "Redis",
-    icon: "database",
+    icon: "redis",
     color: "#d82c20",
     description: "In-memory data structure store",
   },
   postgresql: {
     name: "PostgreSQL",
-    icon: "database",
+    icon: "postgresql",
     color: "#336791",
     description: "Open source relational database",
   },
   mariadb: {
     name: "MariaDB",
-    icon: "database",
+    icon: "mariadb",
     color: "#003545",
     description: "Open source relational database",
   },
   mongodb: {
     name: "MongoDB",
-    icon: "database",
+    icon: "mongodb",
     color: "#4db33d",
     description: "NoSQL database program",
   },
@@ -369,13 +370,13 @@ export const APPLICATION_TYPES = {
   // --- Monitoring ---
   prometheus: {
     name: "Prometheus",
-    icon: "monitoring",
+    icon: "prometheus",
     color: "#e6522c",
     description: "Monitoring system and time series database",
   },
   "uptime-kuma": {
     name: "Uptime Kuma",
-    icon: "monitoring",
+    icon: "uptime-kuma",
     color: "#17b897",
     description: "Self-hosted monitoring tool",
   },
@@ -391,7 +392,7 @@ export const APPLICATION_TYPES = {
   // --- AI & Productivity ---
   ollama: {
     name: "Ollama",
-    icon: "service",
+    icon: "ollama",
     color: "#000000",
     description: "Get up and running with large language models",
   },
@@ -403,13 +404,13 @@ export const APPLICATION_TYPES = {
   },
   obsidian: {
     name: "Obsidian",
-    icon: "service",
+    icon: "obsidian",
     color: "#7c3aed",
     description: "Knowledge base",
   },
   "paperless-ngx": {
     name: "Paperless-ngx",
-    icon: "service",
+    icon: "paperless-ngx",
     color: "#2a52be",
     description: "Document management system",
   },
@@ -417,7 +418,7 @@ export const APPLICATION_TYPES = {
   // --- Automation ---
   "node-red": {
     name: "Node-RED",
-    icon: "service",
+    icon: "node-red",
     color: "#8f0000",
     description: "Flow-based programming tool",
   },
