@@ -46,27 +46,27 @@
 }
 
 .server-icon {
-  background-image: url("/icons/mdi--server-outline.svg");
+  background-image: url("/icons/hardware/mdi--server-outline.svg");
   /* Remove mask since we want the SVG color or handle it specifically */
 }
 
 .server-icon::before { content: none; }
 
 .nas-icon {
-  background-image: url("/icons/mdi--nas.svg");
+  background-image: url("/icons/hardware/mdi--nas.svg");
 }
 
 .nas-icon::before { content: none; }
 
 .raspberry-pi-icon {
-  background-image: url("/icons/devicon--raspberrypi.svg");
+  background-image: url("/icons/hardware/devicon--raspberrypi.svg");
 }
 
 .raspberry-pi-icon::before, .raspberry-pi-icon::after { content: none; }
 
 .hardware-icon {
   /* Generic hardware fallback */
-  background-image: url("/icons/carbon--iot-platform.svg");
+  background-image: url("/icons/devices/carbon--iot-platform.svg");
 }
 
 .hardware-icon::before { content: none; }
@@ -92,14 +92,14 @@
 
 /* Modem/Router with antennas and signals */
 .router-icon {
-  -webkit-mask-image: url("/icons/router.svg");
-  mask-image: url("/icons/router.svg");
+  -webkit-mask-image: url("/icons/hardware/router.svg");
+  mask-image: url("/icons/hardware/router.svg");
 }
 
 /* Switch with ports */
 .switch-icon {
-  -webkit-mask-image: url("/icons/switch.svg");
-  mask-image: url("/icons/switch.svg");
+  -webkit-mask-image: url("/icons/hardware/switch.svg");
+  mask-image: url("/icons/hardware/switch.svg");
   transform: scale(1.1); /* Slightly larger to show detail */
 }
 
@@ -249,6 +249,7 @@
 .proxmox_os-icon,  /* Alias for typeId */
 .esxi-icon,
 .xcp_ng-icon,
+.xcp_ng_os-icon, /* Alias for typeId */
 .truenas-icon,
 .truenas_scale_os-icon, /* Alias for typeId */
 .harvester-icon,
@@ -270,7 +271,7 @@
 
 .proxmox-icon,
 .proxmox_os-icon {
-  background-image: url("/icons/cib--proxmox.svg");
+  background-image: url("/icons/virtualization/cib--proxmox.svg");
 }
 
 .proxmox-icon::before,
@@ -278,62 +279,61 @@
 
 .esxi-icon {
   /* Using VMware icon for ESXi */
-  background-image: url("/icons/lineicons--vmware.svg");
+  background-image: url("/icons/virtualization/lineicons--vmware.svg");
 }
 
 .esxi-icon::before { content: none; }
 
-.xcp_ng-icon::before {
-  /* No SVG found, keeping CSS shape */
-  content: "";
-  width: 20px;
-  height: 20px;
-  background: #00b388;
-  border-radius: 3px;
+.xcp_ng-icon,
+.xcp_ng_os-icon {
+  background-image: url("/icons/virtualization/xcp-org.png");
 }
+
+.xcp_ng-icon::before,
+.xcp_ng_os-icon::before { content: none; }
 
 .truenas-icon,
 .truenas_scale_os-icon {
-  background-image: url("/icons/simple-icons--truenas.svg");
+  background-image: url("/icons/virtualization/simple-icons--truenas.svg");
 }
 
 .truenas-icon::before,
 .truenas_scale_os-icon::before { content: none; }
 
 .harvester-icon {
-  background-image: url("/icons/devicon--harvester-wordmark.svg");
+  background-image: url("/icons/virtualization/devicon--harvester-wordmark.svg");
 }
 
 .harvester-icon::before { content: none; }
 
 .ovirt-icon {
-  background-image: url("/icons/arcticons--movirt.svg");
+  background-image: url("/icons/virtualization/arcticons--movirt.svg");
 }
 
 .ovirt-icon::before { content: none; }
 
 .citrix-icon {
-  background-image: url("/icons/simple-icons--citrix.svg");
+  background-image: url("/icons/virtualization/simple-icons--citrix.svg");
 }
 
 .citrix-icon::before { content: none; }
 
 .oracle-icon,
 .oracle_vm-icon {
-  background-image: url("/icons/lineicons--oracle.svg");
+  background-image: url("/icons/virtualization/lineicons--oracle.svg");
 }
 
 .oracle-icon::before,
 .oracle_vm-icon::before { content: none; }
 
 .opennebula-icon {
-  background-image: url("/icons/simple-icons--opennebula.svg");
+  background-image: url("/icons/virtualization/simple-icons--opennebula.svg");
 }
 
 .opennebula-icon::before { content: none; }
 
 .smartos-icon {
-  background-image: url("/icons/file-icons--smartos.svg");
+  background-image: url("/icons/virtualization/file-icons--smartos.svg");
 }
 
 .smartos-icon::before { content: none; }
@@ -381,7 +381,7 @@
 }
 
 .ubuntu-icon {
-  background-image: url("/icons/logos--ubuntu.svg");
+  background-image: url("/icons/os/logos--ubuntu.svg");
 }
 
 .ubuntu-icon::before,
@@ -390,7 +390,7 @@
 }
 
 .debian-icon {
-  background-image: url("/icons/logos--debian.svg");
+  background-image: url("/icons/os/logos--debian.svg");
 }
 
 .debian-icon::before {
@@ -398,7 +398,7 @@
 }
 
 .windows-icon {
-  background-image: url("/icons/logos--microsoft-windows-icon.svg");
+  background-image: url("/icons/os/logos--microsoft-windows-icon.svg");
 }
 
 .windows-icon::before {
@@ -406,7 +406,7 @@
 }
 
 .macos-icon {
-  background-image: url("/icons/wpf--macos(1).svg");
+  background-image: url("/icons/os/wpf--macos(1).svg");
 }
 
 .macos-icon::before {
@@ -414,7 +414,7 @@
 }
 
 .centos-icon {
-  background-image: url("/icons/devicon--centos.svg");
+  background-image: url("/icons/os/devicon--centos.svg");
 }
 
 .centos-icon::before {
@@ -422,7 +422,7 @@
 }
 
 .casaos-icon {
-  background-image: url("/icons/cbi--casaos(2).svg");
+  background-image: url("/icons/os/cbi--casaos(2).svg");
 }
 
 .casaos-icon::before {
@@ -430,7 +430,7 @@
 }
 
 .umbrel-icon {
-  background-image: url("/icons/umbrelOS.png");
+  background-image: url("/icons/os/umbrelOS.png");
 }
 
 .umbrel-icon::before {
@@ -438,7 +438,7 @@
 }
 
 .yunohost-icon {
-  background-image: url("/icons/devicon-plain--yunohost.svg");
+  background-image: url("/icons/os/devicon-plain--yunohost.svg");
 }
 
 .yunohost-icon::before {
@@ -446,7 +446,7 @@
 }
 
 .unraid-icon {
-  background-image: url("/icons/simple-icons--unraid.svg");
+  background-image: url("/icons/os/simple-icons--unraid.svg");
 }
 
 .unraid-icon::before {
@@ -455,7 +455,7 @@
 
 .startos-icon {
   /* Using SmartOS icon as fallback if StartOS specific is generic, waiting for confirmation on file-icons--smartos vs startos */
-  background-image: url("/icons/file-icons--smartos.svg"); 
+  background-image: url("/icons/virtualization/file-icons--smartos.svg"); 
 }
 
 .startos-icon::before {
@@ -463,7 +463,7 @@
 }
 
 .omv-icon {
-  background-image: url("/icons/cbi--openmediavault.svg");
+  background-image: url("/icons/os/cbi--openmediavault.svg");
 }
 
 .omv-icon::before {
@@ -489,25 +489,25 @@
 }
 
 .pihole-icon {
-  background-image: url("/icons/simple-icons--pihole.svg");
+  background-image: url("/icons/applications/simple-icons--pihole.svg");
 }
 
 .pihole-icon::before { content: none; }
 
 .docker-icon {
-  background-image: url("/icons/material-icon-theme--docker.svg");
+  background-image: url("/icons/applications/material-icon-theme--docker.svg");
 }
 
 .docker-icon::before { content: none; }
 
 .plex-icon {
-  background-image: url("/icons/cib--plex.svg");
+  background-image: url("/icons/applications/cib--plex.svg");
 }
 
 .plex-icon::before { content: none; }
 
 .homeassistant-icon {
-  background-image: url("/icons/vscode-icons--file-type-homeassistant.svg");
+  background-image: url("/icons/applications/vscode-icons--file-type-homeassistant.svg");
 }
 
 .homeassistant-icon::before { content: none; }
@@ -717,71 +717,71 @@
 }
 
 .tv-icon {
-  -webkit-mask-image: url("/icons/material-symbols-light--tv-outline-rounded.svg");
-  mask-image: url("/icons/material-symbols-light--tv-outline-rounded.svg");
+  -webkit-mask-image: url("/icons/devices/material-symbols-light--tv-outline-rounded.svg");
+  mask-image: url("/icons/devices/material-symbols-light--tv-outline-rounded.svg");
 }
 
 .tv-icon::before { content: none; }
 
 .smartphone-icon {
-  -webkit-mask-image: url("/icons/gridicons--phone.svg");
-  mask-image: url("/icons/gridicons--phone.svg");
+  -webkit-mask-image: url("/icons/devices/gridicons--phone.svg");
+  mask-image: url("/icons/devices/gridicons--phone.svg");
 }
 
 .smartphone-icon::before { content: none; }
 
 .tablet-icon {
-  -webkit-mask-image: url("/icons/ic--twotone-tablet.svg");
-  mask-image: url("/icons/ic--twotone-tablet.svg");
+  -webkit-mask-image: url("/icons/devices/ic--twotone-tablet.svg");
+  mask-image: url("/icons/devices/ic--twotone-tablet.svg");
 }
 
 .tablet-icon::before { content: none; }
 
 .laptop-icon {
-  -webkit-mask-image: url("/icons/ant-design--laptop-outlined.svg");
-  mask-image: url("/icons/ant-design--laptop-outlined.svg");
+  -webkit-mask-image: url("/icons/devices/ant-design--laptop-outlined.svg");
+  mask-image: url("/icons/devices/ant-design--laptop-outlined.svg");
 }
 
 .laptop-icon::before { content: none; }
 
 .desktop-icon {
-  -webkit-mask-image: url("/icons/fluent--desktop-mac-24-regular.svg");
-  mask-image: url("/icons/fluent--desktop-mac-24-regular.svg");
+  -webkit-mask-image: url("/icons/devices/fluent--desktop-mac-24-regular.svg");
+  mask-image: url("/icons/devices/fluent--desktop-mac-24-regular.svg");
 }
 
 .desktop-icon::before { content: none; }
 
 .printer-icon {
-  -webkit-mask-image: url("/icons/bx--printer.svg");
-  mask-image: url("/icons/bx--printer.svg");
+  -webkit-mask-image: url("/icons/devices/bx--printer.svg");
+  mask-image: url("/icons/devices/bx--printer.svg");
 }
 
 .printer-icon::before { content: none; }
 
 .camera-icon {
-  -webkit-mask-image: url("/icons/hugeicons--cctv-camera.svg");
-  mask-image: url("/icons/hugeicons--cctv-camera.svg");
+  -webkit-mask-image: url("/icons/devices/hugeicons--cctv-camera.svg");
+  mask-image: url("/icons/devices/hugeicons--cctv-camera.svg");
 }
 
 .camera-icon::before, .camera-icon::after { content: none; }
 
 .speaker-icon {
-  -webkit-mask-image: url("/icons/material-symbols--speaker-outline.svg");
-  mask-image: url("/icons/material-symbols--speaker-outline.svg");
+  -webkit-mask-image: url("/icons/devices/material-symbols--speaker-outline.svg");
+  mask-image: url("/icons/devices/material-symbols--speaker-outline.svg");
 }
 
 .speaker-icon::before, .speaker-icon::after { content: none; }
 
 .game-console-icon {
-  -webkit-mask-image: url("/icons/game-icons--game-console.svg");
-  mask-image: url("/icons/game-icons--game-console.svg");
+  -webkit-mask-image: url("/icons/devices/game-icons--game-console.svg");
+  mask-image: url("/icons/devices/game-icons--game-console.svg");
 }
 
 .game-console-icon::before, .game-console-icon::after { content: none; }
 
 .iot-device-icon {
-  -webkit-mask-image: url("/icons/carbon--iot-platform.svg");
-  mask-image: url("/icons/carbon--iot-platform.svg");
+  -webkit-mask-image: url("/icons/devices/carbon--iot-platform.svg");
+  mask-image: url("/icons/devices/carbon--iot-platform.svg");
 }
 
 .iot-device-icon::before, .iot-device-icon::after { content: none; }
@@ -846,30 +846,30 @@
   justify-content: center;
 }
 
-.nginx-icon { background-image: url("/icons/material-icon-theme--nginx.svg"); }
-.portainer-icon { background-image: url("/icons/devicon--portainer.svg"); }
-.grafana-icon { background-image: url("/icons/devicon--grafana.svg"); }
-.influxdb-icon { background-image: url("/icons/devicon--influxdb.svg"); }
-.redis-icon { background-image: url("/icons/devicon--redis-wordmark.svg"); }
-.postgresql-icon { background-image: url("/icons/devicon--postgresql.svg"); }
-.mariadb-icon { background-image: url("/icons/logos--mariadb.svg"); }
-.mongodb-icon { background-image: url("/icons/devicon--mongodb-wordmark.svg"); }
-.prometheus-icon { background-image: url("/icons/devicon--prometheus-wordmark.svg"); }
-.uptime-kuma-icon { background-image: url("/icons/simple-icons--uptimekuma.svg"); }
-.ollama-icon { background-image: url("/icons/simple-icons--ollama.svg"); }
-.obsidian-icon { background-image: url("/icons/logos--obsidian-icon.svg"); }
-.paperless-ngx-icon { background-image: url("/icons/simple-icons--paperlessngx.svg"); }
-.node-red-icon { background-image: url("/icons/cib--node-red.svg"); }
-.jellyfin-icon { background-image: url("/icons/simple-icons--jellyfin.svg"); }
-.photoprism-icon { background-image: url("/icons/arcticons--photoprism-gallery.svg"); }
-.immich-icon { background-image: url("/icons/simple-icons--immich.svg"); }
-.minio-icon { background-image: url("/icons/simple-icons--minio.svg"); }
-.syncthing-icon { background-image: url("/icons/simple-icons--syncthing.svg"); }
-.frigate-icon { background-image: url("/icons/hugeicons--cctv-camera.svg"); }
-.adguard-icon { background-image: url("/icons/streamline-ultimate--adguard-logo-bold.svg"); }
-.traefik-icon { background-image: url("/icons/devicon--traefikproxy.svg"); }
-.wireguard-icon { background-image: url("/icons/devicon--wireguard.svg"); }
-.tailscale-icon { background-image: url("/icons/arcticons--tailscale.svg"); }
-.cloudflare-dns-icon { background-image: url("/icons/devicon--cloudflare.svg"); }
-.pfsense-icon { background-image: url("/icons/simple-icons--pfsense.svg"); }
-.openwrt-icon { background-image: url("/icons/simple-icons--openwrt.svg"); }
+.nginx-icon { background-image: url("/icons/applications/material-icon-theme--nginx.svg"); }
+.portainer-icon { background-image: url("/icons/applications/devicon--portainer.svg"); }
+.grafana-icon { background-image: url("/icons/applications/devicon--grafana.svg"); }
+.influxdb-icon { background-image: url("/icons/applications/devicon--influxdb.svg"); }
+.redis-icon { background-image: url("/icons/applications/devicon--redis-wordmark.svg"); }
+.postgresql-icon { background-image: url("/icons/applications/devicon--postgresql.svg"); }
+.mariadb-icon { background-image: url("/icons/applications/logos--mariadb.svg"); }
+.mongodb-icon { background-image: url("/icons/applications/devicon--mongodb-wordmark.svg"); }
+.prometheus-icon { background-image: url("/icons/applications/devicon--prometheus-wordmark.svg"); }
+.uptime-kuma-icon { background-image: url("/icons/applications/simple-icons--uptimekuma.svg"); }
+.ollama-icon { background-image: url("/icons/applications/simple-icons--ollama.svg"); }
+.obsidian-icon { background-image: url("/icons/applications/logos--obsidian-icon.svg"); }
+.paperless-ngx-icon { background-image: url("/icons/applications/simple-icons--paperlessngx.svg"); }
+.node-red-icon { background-image: url("/icons/applications/cib--node-red.svg"); }
+.jellyfin-icon { background-image: url("/icons/applications/simple-icons--jellyfin.svg"); }
+.photoprism-icon { background-image: url("/icons/applications/arcticons--photoprism-gallery.svg"); }
+.immich-icon { background-image: url("/icons/applications/simple-icons--immich.svg"); }
+.minio-icon { background-image: url("/icons/applications/simple-icons--minio.svg"); }
+.syncthing-icon { background-image: url("/icons/applications/simple-icons--syncthing.svg"); }
+.frigate-icon { background-image: url("/icons/devices/hugeicons--cctv-camera.svg"); }
+.adguard-icon { background-image: url("/icons/applications/streamline-ultimate--adguard-logo-bold.svg"); }
+.traefik-icon { background-image: url("/icons/applications/devicon--traefikproxy.svg"); }
+.wireguard-icon { background-image: url("/icons/applications/devicon--wireguard.svg"); }
+.tailscale-icon { background-image: url("/icons/applications/arcticons--tailscale.svg"); }
+.cloudflare-dns-icon { background-image: url("/icons/applications/devicon--cloudflare.svg"); }
+.pfsense-icon { background-image: url("/icons/os/simple-icons--pfsense.svg"); }
+.openwrt-icon { background-image: url("/icons/os/simple-icons--openwrt.svg"); }
