@@ -341,7 +341,7 @@ export class DiagramManager {
     };
   }
 
-  getConnectionEndpoints(connectionId) {
+  getConnectionEndpoints(connectionId, buffer = 0) {
     const connection = this.connections.get(connectionId);
     if (!connection) return null;
 
@@ -356,18 +356,20 @@ export class DiagramManager {
     const sourcePoint = this.getEdgeIntersection(
       sourceBounds,
       sourceCenter,
-      targetCenter
+      targetCenter,
+      buffer
     );
     const targetPoint = this.getEdgeIntersection(
       targetBounds,
       targetCenter,
-      sourceCenter
+      sourceCenter,
+      buffer
     );
 
     return { source: sourcePoint, target: targetPoint };
   }
 
-  getEdgeIntersection(bounds, from, to) {
+  getEdgeIntersection(bounds, from, to, buffer = 0) {
     const dx = to.x - from.x;
     const dy = to.y - from.y;
 
@@ -380,12 +382,39 @@ export class DiagramManager {
 
     let t;
 
+    // Expand bounds by buffer for calculating intersection
+    const bufferedHalfWidth = halfWidth + buffer;
+    const bufferedHalfHeight = halfHeight + buffer;
+
     if (Math.abs(dx) * halfHeight > Math.abs(dy) * halfWidth) {
       // Intersects left or right edge
-      t = halfWidth / Math.abs(dx);
+      // Adjust t calculation to use buffered dimensions
+      // But t is ratio along the vector (dx, dy).
+      // Vector starts at 'from' (center).
+      // t=1 means 'to'.
+      // We want point on edge.
+      // x = center + halfWidth.
+      // dx*t = halfWidth -> t = halfWidth/dx.
+
+      // If we want a buffer GAP, we should STOP SHORT.
+      // So we want the effective bounds to be larger? No, that puts the point further OUT.
+      // We want the point further IN? No, the arrow is outside.
+      // Wait, if the arrow is BEHIND the node, we want to push the point OUTWARD so the arrow tip is visible?
+      // Or do we want the line to stop BEFORE the node so the arrow (which is at the end of line) is visible?
+
+      // If the arrow is drawn at the END of the path:
+      // Point P is on the edge.
+      // Arrow is at P.
+      // If node covers P, arrow is covered.
+      // We want P to be OUTSIDE the node.
+      // So we want to inflate the bounds?
+      // Yes, if we inflate the bounds, the intersection P moves away from center.
+      // So buffer > 0 means inflate.
+
+      t = bufferedHalfWidth / Math.abs(dx);
     } else {
       // Intersects top or bottom edge
-      t = halfHeight / Math.abs(dy);
+      t = bufferedHalfHeight / Math.abs(dy);
     }
 
     return {

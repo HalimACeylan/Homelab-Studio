@@ -23,7 +23,7 @@ export class ConnectionManager {
       );
       marker.setAttribute("id", `arrow-${type}`);
       marker.setAttribute("viewBox", "0 0 10 10");
-      marker.setAttribute("refX", "9");
+      marker.setAttribute("refX", "10");
       marker.setAttribute("refY", "5");
       marker.setAttribute("markerWidth", "6");
       marker.setAttribute("markerHeight", "6");
@@ -44,7 +44,8 @@ export class ConnectionManager {
   }
 
   renderConnection(connection) {
-    const endpoints = this.app.diagram.getConnectionEndpoints(connection.id);
+    // Add a buffer to keep the arrow visible (not hidden under node)
+    const endpoints = this.app.diagram.getConnectionEndpoints(connection.id, 5);
     if (!endpoints) return;
 
     const connectionType =
@@ -278,7 +279,8 @@ export class ConnectionManager {
     const connection = this.app.diagram.connections.get(connectionId);
     if (!connection) return;
 
-    const endpoints = this.app.diagram.getConnectionEndpoints(connectionId);
+    // Add a buffer to keep the arrow visible
+    const endpoints = this.app.diagram.getConnectionEndpoints(connectionId, 5);
     if (!endpoints) return;
 
     const group = this.connectionsLayer.querySelector(
@@ -301,7 +303,7 @@ export class ConnectionManager {
     const connection = this.app.diagram.connections.get(connectionId);
     if (!connection) return;
 
-    const endpoints = this.app.diagram.getConnectionEndpoints(connectionId);
+    const endpoints = this.app.diagram.getConnectionEndpoints(connectionId, 5);
     if (!endpoints) return;
 
     const group = this.connectionsLayer.querySelector(
