@@ -114,31 +114,7 @@ export class ConnectionManager {
   }
 
   calculatePath(source, target) {
-    const dx = target.x - source.x;
-    const dy = target.y - source.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    // Control point offset for bezier curve
-    const curvature = Math.min(distance * 0.3, 100);
-
-    // Determine if connection is more horizontal or vertical
-    if (Math.abs(dx) > Math.abs(dy)) {
-      // Horizontal-ish connection
-      const cx1 = source.x + curvature;
-      const cy1 = source.y;
-      const cx2 = target.x - curvature;
-      const cy2 = target.y;
-
-      return `M ${source.x} ${source.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${target.x} ${target.y}`;
-    } else {
-      // Vertical-ish connection
-      const cx1 = source.x;
-      const cy1 = source.y + curvature * Math.sign(dy);
-      const cx2 = target.x;
-      const cy2 = target.y - curvature * Math.sign(dy);
-
-      return `M ${source.x} ${source.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${target.x} ${target.y}`;
-    }
+    return `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
   }
 
   createConnectionLabel(connection, endpoints) {

@@ -644,15 +644,8 @@ export class UIController {
           const tx = endpoints.target.x - minX + padding;
           const ty = endpoints.target.y - minY + padding;
 
-          // Calculate bezier curve
-          const dx = tx - sx;
-          const dy = ty - sy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const offset = Math.min(dist / 2, 100);
-
-          const pathData = `M ${sx} ${sy} C ${sx + offset} ${sy}, ${
-            tx - offset
-          } ${ty}, ${tx} ${ty}`;
+          // Calculate straight line
+          const pathData = `M ${sx} ${sy} L ${tx} ${ty}`;
           path.setAttribute("d", pathData);
           path.setAttribute("fill", "none");
           path.setAttribute("stroke-width", "2");
