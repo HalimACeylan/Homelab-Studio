@@ -1020,6 +1020,95 @@
         </div>
       </div>
 
+      <!-- Shortcuts Modal -->
+      <div class="modal-overlay" id="shortcuts-modal-overlay"></div>
+      <div class="modal" id="shortcuts-modal">
+        <div class="modal-header">
+          <h2>Keyboard Shortcuts</h2>
+          <button class="modal-close" id="btn-close-shortcuts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="shortcuts-grid">
+            <div class="shortcut-group">
+              <h3>Tools</h3>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Drag / Pan: </span>
+                <kbd>1</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Marquee Select: </span>
+                <kbd>2</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Add Text: </span>
+                <kbd>3</kbd>
+              </div>
+            </div>
+            <div class="shortcut-group">
+              <h3>Connections</h3>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Ethernet Cable: </span>
+                <kbd>4</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Wireless Link: </span>
+                <kbd>5</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Fiber Optic: </span>
+                <kbd>6</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">USB Connection: </span>
+                <kbd>7</kbd>
+              </div>
+            </div>
+            <div class="shortcut-group">
+              <h3>Actions</h3>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Undo: </span>
+                <kbd>Cmd</kbd> + <kbd>Z</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Redo: </span>
+                <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Copy: </span>
+                <kbd>Cmd</kbd> + <kbd>C</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Paste: </span>
+                <kbd>Cmd</kbd> + <kbd>V</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Duplicate: </span>
+                <kbd>Cmd</kbd> + <kbd>D</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-desc">Delete: </span>
+                <kbd>Del</kbd>
+              </div>
+               <div class="shortcut-item">
+                <span class="shortcut-desc">Save: </span>
+                <kbd>Cmd</kbd> + <kbd>S</kbd>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between;">
+          <label class="checkbox-label">
+              <input type="checkbox" id="dont-show-shortcuts"> Don't show this again
+          </label>
+          <button class="btn btn-primary" id="btn-close-shortcuts-footer">Got it</button>
+        </div>
+      </div>
+
       <!-- Toast Notifications -->
       <div class="toast-container" id="toast-container"></div>
     </div>

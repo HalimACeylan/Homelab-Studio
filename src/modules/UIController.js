@@ -128,6 +128,20 @@ export class UIController {
         this.closeContextMenu();
       });
     });
+
+    // Shortcuts Modal Listeners
+    document
+      .getElementById("btn-close-shortcuts")
+      ?.addEventListener("click", () => this.closeShortcutsModal());
+    document
+      .getElementById("btn-close-shortcuts-footer")
+      ?.addEventListener("click", () => this.closeShortcutsModal());
+    document
+      .getElementById("shortcuts-modal-overlay")
+      ?.addEventListener("click", () => this.closeShortcutsModal());
+
+    // Show on load
+    this.showShortcutsModal();
   }
 
   setupHeaderListeners() {
@@ -1153,5 +1167,36 @@ export class UIController {
         }
       });
     });
+  }
+  // Shortcuts Modal
+  showShortcutsModal() {
+    // Check if user has opted out
+    const dontShow = localStorage.getItem("homelab-shortcuts-optout");
+    if (dontShow === "true") {
+      return;
+    }
+
+    const modal = document.getElementById("shortcuts-modal");
+    const overlay = document.getElementById("shortcuts-modal-overlay");
+
+    if (modal && overlay) {
+      modal.classList.add("visible");
+      overlay.classList.add("visible");
+    }
+  }
+
+  closeShortcutsModal() {
+    const modal = document.getElementById("shortcuts-modal");
+    const overlay = document.getElementById("shortcuts-modal-overlay");
+    const checkbox = document.getElementById("dont-show-shortcuts");
+
+    if (checkbox && checkbox.checked) {
+      localStorage.setItem("homelab-shortcuts-optout", "true");
+    }
+
+    if (modal && overlay) {
+      modal.classList.remove("visible");
+      overlay.classList.remove("visible");
+    }
   }
 }

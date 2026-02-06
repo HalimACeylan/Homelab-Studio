@@ -1,0 +1,89 @@
+/* Shortcuts Modal Specific Styles */
+
+#shortcuts-modal {
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  display: none;
+  flex-direction: column;
+  
+  /* Centering Logic */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001; /* Higher than overlay */
+}
+
+#shortcuts-modal.visible {
+  display: flex;
+}
+
+#shortcuts-modal .modal-body {
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+  flex: 1;
+}
+
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.shortcut-group h3 {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-secondary);
+  padding-bottom: var(--spacing-xs);
+}
+
+.shortcut-item {
+  display: flex;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: 1px;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+}
+
+.shortcut-desc {
+  color: var(--text-secondary);
+}
+
+kbd {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-primary);
+  padding: var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* Ensure overlay works for this specific modal */
+#shortcuts-modal-overlay {
+  z-index: 1000;
+}
