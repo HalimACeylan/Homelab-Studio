@@ -157,6 +157,202 @@ export class UIController {
         }
       });
     }
+
+    // ===== Mobile UI Handlers =====
+    this.setupMobileHandlers();
+
+    // ===== Coordinates Display Update =====
+    if (window.innerWidth < 768) {
+      this.setupCoordinatesDisplay();
+    }
+  }
+
+  setupMobileHandlers() {
+    // FAB - Palette Toggle
+    const fabBtn = document.getElementById("fab-palette-toggle");
+    if (fabBtn) {
+      fabBtn.addEventListener("click", () => {
+        const palette = document.getElementById("palette");
+        if (palette) {
+          palette.classList.toggle("visible");
+        }
+      });
+    }
+
+    // Mobile File Menu
+    const btnFile = document.getElementById("btn-mobile-file");
+    const fileMenu = document.getElementById("mobile-file-menu");
+    if (btnFile && fileMenu) {
+      btnFile.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const editMenu = document.getElementById("mobile-edit-menu");
+        if (editMenu) editMenu.classList.remove("visible");
+        fileMenu.classList.toggle("visible");
+      });
+
+      // File Menu Actions
+      fileMenu.querySelectorAll(".mobile-dropdown-item").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const action = btn.dataset.action;
+          fileMenu.classList.remove("visible");
+
+          switch (action) {
+            case "new":
+              this.confirmNewDiagram();
+              break;
+            case "save":
+              this.app.file.save();
+              break;
+            case "load":
+              this.app.file.load();
+              break;
+            case "export":
+              this.exportPNG();
+              break;
+          }
+        });
+      });
+    }
+
+    // Mobile Edit Menu
+    const btnEdit = document.getElementById("btn-mobile-edit");
+    const editMenu = document.getElementById("mobile-edit-menu");
+    if (btnEdit && editMenu) {
+      btnEdit.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const fileMenu = document.getElementById("mobile-file-menu");
+        if (fileMenu) fileMenu.classList.remove("visible");
+        editMenu.classList.toggle("visible");
+      });
+
+      // Edit Menu Actions
+      editMenu.querySelectorAll(".mobile-dropdown-item").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const action = btn.dataset.action;
+          editMenu.classList.remove("visible");
+
+          switch (action) {
+            case "undo":
+              this.app.undo();
+              break;
+            case "redo":
+              this.app.redo();
+              break;
+          }
+        });
+      });
+    }
+
+    // Close menus on click outside
+    document.addEventListener("click", (e) => {
+      if (
+        !e.target.closest(".mobile-menu-btn") &&
+        !e.target.closest(".mobile-dropdown")
+      ) {
+        document.querySelectorAll(".mobile-dropdown").forEach((menu) => {
+          menu.classList.remove("visible");
+        });
+      }
+    });
+
+    // Properties Popup Close
+    const closePropsBtn = document.getElementById("close-properties-popup");
+    if (closePropsBtn) {
+      closePropsBtn.addEventListener("click", () => {
+        this.hideMobilePropertiesPopup();
+      });
+    }
+  }
+
+  setupCoordinatesDisplay() {
+    const coordsDisplay = document.getElementById("mobile-coordinates");
+    if (!coordsDisplay) return;
+
+    // Update on mouse/touch move
+    const updateCoords = (e) => {
+      const canvasController = this.app.canvas;
+      if (!canvasController) return;
+
+      const x =
+        e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const y =
+        e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      const canvasPos = canvasController.screenToCanvas(x, y);
+
+      coordsDisplay.textContent = `${Math.round(canvasPos.x)}, ${Math.round(
+        canvasPos.y
+      )}`;
+    };
+
+    document.addEventListener("mousemove", updateCoords);
+    document.addEventListener("touchmove", updateCoords);
+  }
+
+  showMobilePropertiesPopup(node) {
+    if (window.innerWidth >= 768) return; // Desktop only
+
+    const popup = document.getElementById("properties-popup");
+    const content = document.getElementById("properties-popup-content");
+
+    if (!popup || !content) return;
+
+    // Build property fields
+    content.innerHTML = `
+      <div class="property-group">
+        <label class="property-label">Name</label>
+        <input type="text" class="property-input" id="mobile-prop-name" value="${
+          node.properties.name || ""
+        }" />
+      </div>
+      <div class="property-group">
+        <label class="property-label">Description</label>
+        <textarea class="property-input" id="mobile-prop-desc" rows="3">${
+          node.properties.description || ""
+        }</textarea>
+      </div>
+      <div class="property-group">
+        <label class="property-label">IP Address</label>
+        <input type="text" class="property-input" id="mobile-prop-ip" value="${
+          node.properties.ip || ""
+        }" />
+      </div>
+    `;
+
+    // Attach live update listeners
+    const nameInput = document.getElementById("mobile-prop-name");
+    nameInput?.addEventListener("input", (e) => {
+      this.app.diagram.updateNode(node.id, {
+        properties: { ...node.properties, name: e.target.value },
+      });
+      this.app.nodeRenderer.updateNodeElement(
+        node.id,
+        this.app.diagram.nodes.get(node.id)
+      );
+    });
+
+    const descInput = document.getElementById("mobile-prop-desc");
+    descInput?.addEventListener("input", (e) => {
+      this.app.diagram.updateNode(node.id, {
+        properties: { ...node.properties, description: e.target.value },
+      });
+    });
+
+    const ipInput = document.getElementById("mobile-prop-ip");
+    ipInput?.addEventListener("input", (e) => {
+      this.app.diagram.updateNode(node.id, {
+        properties: { ...node.properties, ip: e.target.value },
+      });
+    });
+
+    // Show popup
+    popup.classList.add("visible");
+  }
+
+  hideMobilePropertiesPopup() {
+    const popup = document.getElementById("properties-popup");
+    if (popup) {
+      popup.classList.remove("visible");
+    }
   }
 
   updateDiagramName(newName) {

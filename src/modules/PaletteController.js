@@ -149,16 +149,195 @@ export class PaletteController {
       this.filterItems(e.target.value.toLowerCase());
     });
 
-    // Drag start on palette items
+    // Setup drag and mobile long-press for palette items
     this.palette.querySelectorAll(".palette-item").forEach((item) => {
+      // Desktop drag handlers
       item.addEventListener("dragstart", (e) => this.handleDragStart(e));
       item.addEventListener("dragend", (e) => this.handleDragEnd(e));
+
+      // Mobile: Long press to drag
+      if (window.innerWidth < 768) {
+        let longPressTimer;
+        let touchStartPos = { x: 0, y: 0 };
+        let hasMoved = false;
+
+        item.addEventListener("touchstart", (e) => {
+          const touch = e.touches[0];
+          touchStartPos = { x: touch.clientX, y: touch.clientY };
+          hasMoved = false;
+
+          // Start long press timer
+          longPressTimer = setTimeout(() => {
+            // Vibrate feedback
+            if (navigator.vibrate) {
+              navigator.vibrate(50);
+            }
+
+            // Hide palette
+            this.palette.classList.remove("visible");
+
+            // Store drag data
+            this.currentDragData = {
+              type: item.dataset.type,
+              category: item.dataset.category,
+            };
+
+            // Visual feedback - create a floating preview
+            this.createDragPreview(item, touch.clientX, touch.clientY);
+          }, 300); // Reduced for faster response
+        });
+
+        item.addEventListener("touchmove", (e) => {
+          const touch = e.touches[0];
+          const dx = Math.abs(touch.clientX - touchStartPos.x);
+          const dy = Math.abs(touch.clientY - touchStartPos.y);
+
+          if (dx > 10 || dy > 10) {
+            hasMoved = true;
+            clearTimeout(longPressTimer);
+          }
+
+          // Update drag preview position if dragging
+          if (this.dragPreview) {
+            e.preventDefault();
+            this.dragPreview.style.left = `${touch.clientX - 24}px`;
+            this.dragPreview.style.top = `${touch.clientY - 24}px`;
+          }
+        });
+
+        item.addEventListener("touchend", (e) => {
+          clearTimeout(longPressTimer);
+
+          // If we were dragging, handle drop
+          if (this.dragPreview) {
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(
+              touch.clientX,
+              touch.clientY
+            );
+
+            // Check category to determine drop behavior
+            const category = this.currentDragData.category;
+            const type = this.currentDragData.type;
+
+            // Hardware and Network can drop on canvas
+            if (
+              category === "hardware" ||
+              category === "network" ||
+              category === "user-device"
+            ) {
+              if (
+                dropTarget &&
+                dropTarget.closest("#canvas-container") &&
+                this.app.canvas
+              ) {
+                const canvasPos = this.app.canvas.screenToCanvas(
+                  touch.clientX,
+                  touch.clientY
+                );
+
+                const nodeId = this.app.addNode(type, canvasPos.x, canvasPos.y);
+
+                console.log("✅ Created hardware/network node:", nodeId);
+              }
+            }
+            // OS and Applications must drop on existing hardware
+            else if (
+              category === "os" ||
+              category === "v-os" ||
+              category === "local_llm" ||
+              !category
+            ) {
+              const hardwareNode = dropTarget?.closest(
+                ".canvas-node.hardware-node"
+              );
+
+              if (hardwareNode && this.app) {
+                const nodeId = hardwareNode.dataset.nodeId;
+                const node = this.app.diagram.nodes.get(nodeId);
+
+                if (node && node.category === "hardware") {
+                  // Add as OS environment
+                  const success = this.app.diagram.addOSEnvironment(
+                    nodeId,
+                    type,
+                    type
+                  );
+                  if (success) {
+                    this.app.nodeRenderer.updateNodeElement(
+                      nodeId,
+                      this.app.diagram.nodes.get(nodeId)
+                    );
+                    this.app.ui.showToast(
+                      `Added ${type} to ${node.properties.name}`,
+                      "success"
+                    );
+                    console.log("✅ Added OS to hardware node:", nodeId);
+                  }
+                } else {
+                  this.app.ui.showToast(
+                    "Can only add OS/Apps to hardware nodes",
+                    "error"
+                  );
+                }
+              } else {
+                this.app.ui.showToast(
+                  "Drop OS/Apps onto a hardware node",
+                  "info"
+                );
+              }
+            }
+
+            // Clean up
+            this.removeDragPreview();
+            this.currentDragData = null;
+          }
+        });
+
+        item.addEventListener("touchcancel", () => {
+          clearTimeout(longPressTimer);
+          this.removeDragPreview();
+          this.currentDragData = null;
+        });
+      }
     });
 
     // Drop on canvas
     const canvasContainer = document.getElementById("canvas-container");
     canvasContainer.addEventListener("dragover", (e) => this.handleDragOver(e));
     canvasContainer.addEventListener("drop", (e) => this.handleDrop(e));
+  }
+
+  createDragPreview(item, x, y) {
+    this.dragPreview = document.createElement("div");
+    this.dragPreview.className = "drag-preview";
+    this.dragPreview.style.position = "fixed";
+    this.dragPreview.style.left = `${x - 24}px`;
+    this.dragPreview.style.top = `${y - 24}px`;
+    this.dragPreview.style.width = "48px";
+    this.dragPreview.style.height = "48px";
+    this.dragPreview.style.pointerEvents = "none";
+    this.dragPreview.style.zIndex = "9999";
+    this.dragPreview.style.opacity = "0.8";
+    this.dragPreview.style.background = "var(--bg-secondary)";
+    this.dragPreview.style.border = "2px solid var(--accent-primary)";
+    this.dragPreview.style.borderRadius = "8px";
+    this.dragPreview.style.display = "flex";
+    this.dragPreview.style.alignItems = "center";
+    this.dragPreview.style.justifyContent = "center";
+
+    // Clone the icon
+    const iconClone = item.querySelector(".palette-item-icon").cloneNode(true);
+    this.dragPreview.appendChild(iconClone);
+
+    document.body.appendChild(this.dragPreview);
+  }
+
+  removeDragPreview() {
+    if (this.dragPreview) {
+      this.dragPreview.remove();
+      this.dragPreview = null;
+    }
   }
 
   initializeSections() {

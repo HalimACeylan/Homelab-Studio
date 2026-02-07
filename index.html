@@ -49,6 +49,34 @@
             />
           </div>
         </div>
+        
+        <!-- Mobile Menu Controls -->
+        <div class="mobile-menus">
+          <button class="btn-icon mobile-menu-btn" id="btn-mobile-file" title="File">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </button>
+          <div class="mobile-dropdown" id="mobile-file-menu">
+            <button class="mobile-dropdown-item" data-action="new">New</button>
+            <button class="mobile-dropdown-item" data-action="save">Save</button>
+            <button class="mobile-dropdown-item" data-action="load">Load</button>
+            <button class="mobile-dropdown-item" data-action="export">Export</button>
+          </div>
+          
+          <button class="btn-icon mobile-menu-btn" id="btn-mobile-edit" title="Edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2.5 2v6h6M21.5 22v-6h-6"></path>
+              <path d="M22 11a10 10 0 1 1-9-10"></path>
+            </svg>
+          </button>
+          <div class="mobile-dropdown" id="mobile-edit-menu">
+            <button class="mobile-dropdown-item" data-action="undo">Undo</button>
+            <button class="mobile-dropdown-item" data-action="redo">Redo</button>
+          </div>
+        </div>
+        
         <div class="toolbar">
           <button class="toolbar-btn" id="btn-new" title="New Diagram">
             <svg
@@ -1120,6 +1148,34 @@
       accept=".json,.hlstudio"
       style="display: none"
     />
+
+    <!-- Mobile FAB - Component Palette Toggle -->
+    <button class="fab-palette" id="fab-palette-toggle" aria-label="Components">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Mobile Coordinates Display -->
+    <div class="coordinates-display" id="mobile-coordinates">0, 0</div>
+
+    <!-- Mobile Properties Popup -->
+    <div class="properties-popup" id="properties-popup">
+      <div class="properties-popup-header">
+        <h3>Node Properties</h3>
+        <button class="btn-icon" id="close-properties-popup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="properties-popup-content" id="properties-popup-content">
+        <!-- Dynamic content -->
+      </div>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>
