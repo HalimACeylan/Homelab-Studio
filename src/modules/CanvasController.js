@@ -474,9 +474,13 @@ export class CanvasController {
     }
 
     // Pass to standard mouse up handler
+    const touch = e.changedTouches[0];
     const fakeEvent = {
-      clientX: e.changedTouches[0]?.clientX || this.touchStartX,
-      clientY: e.changedTouches[0]?.clientY || this.touchStartY,
+      clientX: touch?.clientX || this.touchStartX,
+      clientY: touch?.clientY || this.touchStartY,
+      target: touch
+        ? document.elementFromPoint(touch.clientX, touch.clientY)
+        : e.target,
     };
     this.handleMouseUp(fakeEvent);
 

@@ -43,7 +43,7 @@ export class PaletteController {
       hardwareSection.innerHTML = ""; // Clear existing
       Object.entries(NODE_TYPES).forEach(([type, config]) => {
         if (config.category === "hardware") {
-          hardwareSection.appendChild(createItem(type, config));
+          hardwareSection.appendChild(createItem(type, config, "hardware"));
         }
       });
     }
@@ -56,7 +56,7 @@ export class PaletteController {
       networkSection.innerHTML = "";
       Object.entries(NODE_TYPES).forEach(([type, config]) => {
         if (config.category === "network") {
-          networkSection.appendChild(createItem(type, config));
+          networkSection.appendChild(createItem(type, config, "network"));
         }
       });
     }
@@ -114,7 +114,7 @@ export class PaletteController {
       localLlmSection.innerHTML = "";
       Object.entries(APPLICATION_TYPES).forEach(([type, config]) => {
         if (config.category === "local_llm") {
-          localLlmSection.appendChild(createItem(type, config, "application"));
+          localLlmSection.appendChild(createItem(type, config, "local_llm"));
         }
       });
     }
@@ -127,7 +127,7 @@ export class PaletteController {
       devicesSection.innerHTML = "";
       Object.entries(NODE_TYPES).forEach(([type, config]) => {
         if (config.category === "user-device") {
-          devicesSection.appendChild(createItem(type, config));
+          devicesSection.appendChild(createItem(type, config, "user-device"));
         }
       });
     }
@@ -181,6 +181,8 @@ export class PaletteController {
               type: item.dataset.type,
               category: item.dataset.category,
             };
+
+            console.log("🎨 Drag data:", this.currentDragData);
 
             // Visual feedback - create a floating preview
             this.createDragPreview(item, touch.clientX, touch.clientY);
@@ -245,6 +247,7 @@ export class PaletteController {
             else if (
               category === "os" ||
               category === "v-os" ||
+              category === "application" ||
               category === "local_llm" ||
               !category
             ) {
@@ -257,12 +260,28 @@ export class PaletteController {
                 const node = this.app.diagram.nodes.get(nodeId);
 
                 if (node && node.category === "hardware") {
-                  // Add as OS environment
-                  const success = this.app.diagram.addOSEnvironment(
-                    nodeId,
-                    type,
-                    type
-                  );
+                  let success = false;
+
+                  // Applications and Local LLMs should be added as applications
+                  if (category === "application" || category === "local_llm") {
+                    success = this.app.diagram.addApplicationToNode(
+                      nodeId,
+                      type
+                    );
+                  }
+                  // OS types should be added as OS environments
+                  else if (
+                    category === "os" ||
+                    category === "v-os" ||
+                    !category
+                  ) {
+                    success = this.app.diagram.addOSEnvironment(
+                      nodeId,
+                      type,
+                      type
+                    );
+                  }
+
                   if (success) {
                     this.app.nodeRenderer.updateNodeElement(
                       nodeId,
@@ -272,7 +291,10 @@ export class PaletteController {
                       `Added ${type} to ${node.properties.name}`,
                       "success"
                     );
-                    console.log("✅ Added OS to hardware node:", nodeId);
+                    console.log(
+                      `✅ Added ${category} to hardware node:`,
+                      nodeId
+                    );
                   }
                 } else {
                   this.app.ui.showToast(
