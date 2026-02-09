@@ -1047,9 +1047,48 @@
 }
 
 .connection-label-bg {
-  fill: var(--bg-secondary);
-  stroke: var(--border-primary);
-  stroke-width: 1;
+  fill: var(--bg-primary);
   opacity: 0.95;
-  rx: 3;
+}
+
+/* ===================================
+   Connection Delete Button
+   =================================== */
+
+.connection-delete-btn {
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: auto;
+}
+
+.connection-group:hover .connection-delete-btn {
+  opacity: 1;
+}
+
+.delete-btn-bg {
+  fill: var(--bg-primary);
+  stroke: var(--border-primary);
+  stroke-width: 1.5;
+  transition: all var(--transition-fast);
+}
+
+.connection-delete-btn:hover .delete-btn-bg {
+  fill: var(--accent-red);
+  stroke: var(--accent-red);
+}
+
+/* Mobile: Always visible, larger touch target */
+@media (max-width: 768px) {
+  .connection-delete-btn {
+    opacity: 1;
+  }
+  
+  .connection-delete-btn circle {
+    r: 16; /* Larger tap target */
+  }
+  
+  .connection-delete-btn foreignObject {
+    width: 20px;
+    height: 20px;
+  }
 }

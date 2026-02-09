@@ -262,7 +262,63 @@ export class ConnectionManager {
       }
     }, 0);
 
+    // Add delete button to label group
+    const deleteBtn = this.createDeleteButton(connection.id, midX, midY);
+    if (deleteBtn) {
+      labelGroup.appendChild(deleteBtn);
+    }
+
     return labelGroup;
+  }
+
+  createDeleteButton(connectionId, x, y) {
+    const btnGroup = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g"
+    );
+    btnGroup.classList.add("connection-delete-btn");
+    btnGroup.dataset.connectionId = connectionId;
+
+    // Background circle
+    const circle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+    circle.setAttribute("cx", x);
+    circle.setAttribute("cy", y - 40); // Above label
+    circle.setAttribute("r", "12");
+    circle.classList.add("delete-btn-bg");
+
+    // Trash icon (foreign object for HTML icon)
+    const foreignObject = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "foreignObject"
+    );
+    foreignObject.setAttribute("x", x - 8);
+    foreignObject.setAttribute("y", y - 48);
+    foreignObject.setAttribute("width", "16");
+    foreignObject.setAttribute("height", "16");
+
+    const iconDiv = document.createElement("div");
+    iconDiv.className = "trash-icon";
+    iconDiv.style.width = "16px";
+    iconDiv.style.height = "16px";
+    iconDiv.style.color = "white";
+    foreignObject.appendChild(iconDiv);
+
+    btnGroup.appendChild(circle);
+    btnGroup.appendChild(foreignObject);
+
+    // Click handler
+    btnGroup.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.app.removeConnection(connectionId);
+    });
+
+    btnGroup.style.cursor = "pointer";
+
+    return btnGroup;
   }
 
   updateConnectionsForNode(nodeId) {
