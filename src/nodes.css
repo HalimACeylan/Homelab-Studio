@@ -1092,3 +1092,76 @@
     height: 20px;
   }
 }
+
+/* ===================================
+   Connection Control Points (Waypoints)
+   =================================== */
+
+.connection-control-point {
+  opacity: 1; /* Always visible for now */
+  transition: opacity var(--transition-fast);
+  pointer-events: auto;
+}
+
+/* Will add hover effect later */
+/* .connection-group:hover .connection-control-point {
+  opacity: 1;
+} */
+
+.control-point-outer {
+  fill: var(--bg-primary);
+  stroke: var(--accent-blue);
+  stroke-width: 2;
+  transition: all var(--transition-fast);
+}
+
+.control-point-inner {
+  fill: var(--accent-blue);
+  pointer-events: none;
+}
+
+/* Color coding for start/end points */
+.control-point-start {
+  fill: var(--accent-green); /* Green for start */
+}
+
+.control-point-end {
+  fill: var(--accent-red); /* Red for end */
+}
+
+.connection-control-point:hover .control-point-outer {
+  fill: var(--accent-blue);
+  stroke: var(--accent-blue);
+  r: 8;
+}
+
+.connection-control-point:hover .control-point-inner {
+  fill: white;
+}
+
+.connection-control-point.dragging .control-point-outer {
+  fill: var(--accent-blue);
+  stroke: var(--accent-blue);
+  r: 8;
+  opacity: 0.8;
+}
+
+.connection-control-point.dragging .control-point-inner {
+  fill: white;
+}
+
+/* Mobile: Always visible, larger touch targets */
+@media (max-width: 768px) {
+  .connection-control-point {
+    opacity: 1;
+  }
+  
+  .control-point-outer {
+    r: 8;
+  }
+  
+  .control-point-inner {
+    r: 4;
+  }
+}
+

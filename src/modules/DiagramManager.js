@@ -224,11 +224,51 @@ export class DiagramManager {
   createConnection(sourceId, targetId, properties = {}) {
     const id = generateId("conn");
 
+    // Calculate initial waypoints if not provided
+    let waypoints = properties.waypoints;
+    if (!waypoints || waypoints.length === 0) {
+      // Get node positions to calculate waypoints
+      const sourceNode = this.nodes.get(sourceId);
+      const targetNode = this.nodes.get(targetId);
+
+      if (sourceNode && targetNode) {
+        // Calculate start and end positions
+        const startX = sourceNode.x + sourceNode.width;
+        const startY = sourceNode.y + sourceNode.height / 2;
+        const endX = targetNode.x;
+        const endY = targetNode.y + targetNode.height / 2;
+
+        // Create 5 waypoints along the straight line (including endpoints)
+        waypoints = [
+          { x: startX, y: startY }, // 0% - Start (at source node)
+          {
+            x: startX + (endX - startX) * 0.25,
+            y: startY + (endY - startY) * 0.25,
+          }, // 25%
+          {
+            x: startX + (endX - startX) * 0.5,
+            y: startY + (endY - startY) * 0.5,
+          }, // 50% - Middle
+          {
+            x: startX + (endX - startX) * 0.75,
+            y: startY + (endY - startY) * 0.75,
+          }, // 75%
+          { x: endX, y: endY }, // 100% - End (at target node)
+        ];
+      } else {
+        waypoints = [];
+      }
+    }
+
     const connection = {
       id,
       sourceId,
       targetId,
       type: properties.type || "ethernet",
+      waypoints: waypoints,
+      waypointsLocked: false, // True if user has manually adjusted waypoints
+      sourceAnchor: properties.sourceAnchor || { side: "right", offset: 0.5 }, // Attachment point on source
+      targetAnchor: properties.targetAnchor || { side: "left", offset: 0.5 }, // Attachment point on target
       properties: {
         ...properties,
       },

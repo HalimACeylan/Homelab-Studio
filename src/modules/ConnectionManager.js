@@ -73,8 +73,12 @@ export class ConnectionManager {
     path.classList.add("connection", connection.type);
     path.dataset.connectionId = connection.id;
 
-    // Calculate bezier curve
-    const pathData = this.calculatePath(endpoints.source, endpoints.target);
+    // Calculate path with waypoints
+    const pathData = this.calculatePath(
+      endpoints.source,
+      endpoints.target,
+      connection.waypoints
+    );
     hitArea.setAttribute("d", pathData);
     path.setAttribute("d", pathData);
     path.setAttribute("marker-end", `url(#arrow-${connection.type})`);
@@ -104,6 +108,25 @@ export class ConnectionManager {
     group.appendChild(hitArea);
     group.appendChild(path);
 
+    // Add waypoint control points
+    if (connection.waypoints && connection.waypoints.length > 0) {
+      connection.waypoints.forEach((wp, index) => {
+        // Determine control point type
+        let type = "normal";
+        if (index === 0) type = "start";
+        else if (index === connection.waypoints.length - 1) type = "end";
+
+        const controlPoint = this.createControlPoint(
+          connection.id,
+          index,
+          wp.x,
+          wp.y,
+          type
+        );
+        group.appendChild(controlPoint);
+      });
+    }
+
     // Add label with node names and bandwidth
     const label = this.createConnectionLabel(connection, endpoints);
     if (label) {
@@ -113,8 +136,18 @@ export class ConnectionManager {
     this.connectionsLayer.appendChild(group);
   }
 
-  calculatePath(source, target) {
-    return `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+  calculatePath(source, target, waypoints = []) {
+    if (!waypoints || waypoints.length === 0) {
+      // Direct line when no waypoints
+      return `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+    }
+
+    // Build path through waypoints - starts at first waypoint (first dot)
+    let pathData = `M ${waypoints[0].x} ${waypoints[0].y}`;
+    for (let i = 1; i < waypoints.length; i++) {
+      pathData += ` L ${waypoints[i].x} ${waypoints[i].y}`;
+    }
+    return pathData;
   }
 
   createConnectionLabel(connection, endpoints) {
@@ -321,6 +354,230 @@ export class ConnectionManager {
     return btnGroup;
   }
 
+  createControlPoint(connectionId, waypointIndex, x, y, type = "normal") {
+    const cpGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    cpGroup.classList.add("connection-control-point");
+    cpGroup.dataset.connectionId = connectionId;
+    cpGroup.dataset.waypointIndex = waypointIndex;
+    cpGroup.dataset.controlType = type;
+
+    // All control points are circles
+    // Outer circle (larger for easier grabbing)
+    const outerCircle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+    outerCircle.setAttribute("cx", x);
+    outerCircle.setAttribute("cy", y);
+    outerCircle.setAttribute("r", "6");
+    outerCircle.classList.add("control-point-outer");
+
+    // Inner circle (visual dot) - color based on type
+    const innerCircle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+    innerCircle.setAttribute("cx", x);
+    innerCircle.setAttribute("cy", y);
+    innerCircle.setAttribute("r", "3");
+    innerCircle.classList.add("control-point-inner");
+
+    // Add type-specific class for coloring
+    if (type === "start") {
+      innerCircle.classList.add("control-point-start");
+    } else if (type === "end") {
+      innerCircle.classList.add("control-point-end");
+    }
+
+    cpGroup.appendChild(outerCircle);
+    cpGroup.appendChild(innerCircle);
+
+    // Drag handlers
+    let isDragging = false;
+    let startX, startY;
+
+    const handleMouseDown = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      cpGroup.classList.add("dragging");
+    };
+
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+      e.stopPropagation();
+
+      const connection = this.app.diagram.connections.get(connectionId);
+      if (!connection || !connection.waypoints[waypointIndex]) return;
+
+      // Get SVG coordinates
+      const svg = this.connectionsLayer;
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+      const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+      // Handle start/end points differently - constrain to node boundary
+      if (waypointIndex === 0) {
+        // Start point - constrain to source node
+        const sourceNode = this.app.diagram.nodes.get(connection.sourceId);
+        if (sourceNode) {
+          const anchor = this.calculateNodeAnchor(svgP.x, svgP.y, sourceNode);
+          connection.sourceAnchor = anchor;
+          const pos = this.getAnchorPosition(sourceNode, anchor);
+          connection.waypoints[waypointIndex] = { x: pos.x, y: pos.y };
+        }
+      } else if (waypointIndex === connection.waypoints.length - 1) {
+        // End point - constrain to target node
+        const targetNode = this.app.diagram.nodes.get(connection.targetId);
+        if (targetNode) {
+          const anchor = this.calculateNodeAnchor(svgP.x, svgP.y, targetNode);
+          connection.targetAnchor = anchor;
+          const pos = this.getAnchorPosition(targetNode, anchor);
+          connection.waypoints[waypointIndex] = { x: pos.x, y: pos.y };
+        }
+      } else {
+        // Middle waypoints - free movement
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        startX = e.clientX;
+        startY = e.clientY;
+        connection.waypoints[waypointIndex].x += dx;
+        connection.waypoints[waypointIndex].y += dy;
+      }
+
+      this.updateConnection(connectionId);
+    };
+
+    const handleMouseUp = (e) => {
+      if (isDragging) {
+        e.stopPropagation();
+        isDragging = false;
+        cpGroup.classList.remove("dragging");
+
+        // Only lock waypoints if user manually adjusted MIDDLE waypoints
+        // Start/end points should always stick to nodes
+        const connection = this.app.diagram.connections.get(connectionId);
+        if (
+          connection &&
+          waypointIndex !== 0 &&
+          waypointIndex !== connection.waypoints.length - 1
+        ) {
+          connection.waypointsLocked = true;
+        }
+
+        this.app.diagram.updateModified();
+      }
+    };
+
+    cpGroup.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    // Touch support
+    cpGroup.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+      const touch = e.touches[0];
+      handleMouseDown({
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        stopPropagation: () => {},
+        preventDefault: () => {},
+      });
+    });
+
+    cpGroup.style.cursor = "move";
+
+    return cpGroup;
+  }
+
+  calculateNodeAnchor(x, y, node) {
+    // Determine which side of the node is closest and offset along that side
+    const centerX = node.x + node.width / 2;
+    const centerY = node.y + node.height / 2;
+
+    const dx = x - centerX;
+    const dy = y - centerY;
+
+    // Determine side based on angle
+    const angle = Math.atan2(dy, dx);
+    const absAngle = Math.abs(angle);
+
+    let side, offset;
+
+    if (absAngle < Math.PI / 4) {
+      // Right side
+      side = "right";
+      offset = Math.max(0, Math.min(1, (y - node.y) / node.height));
+    } else if (absAngle > (3 * Math.PI) / 4) {
+      // Left side
+      side = "left";
+      offset = Math.max(0, Math.min(1, (y - node.y) / node.height));
+    } else if (angle > 0) {
+      // Bottom side
+      side = "bottom";
+      offset = Math.max(0, Math.min(1, (x - node.x) / node.width));
+    } else {
+      // Top side
+      side = "top";
+      offset = Math.max(0, Math.min(1, (x - node.x) / node.width));
+    }
+
+    return { side, offset };
+  }
+
+  getAnchorPosition(node, anchor) {
+    const { side, offset } = anchor;
+    let x, y;
+
+    switch (side) {
+      case "right":
+        x = node.x + node.width;
+        y = node.y + offset * node.height;
+        break;
+      case "left":
+        x = node.x;
+        y = node.y + offset * node.height;
+        break;
+      case "top":
+        x = node.x + offset * node.width;
+        y = node.y;
+        break;
+      case "bottom":
+        x = node.x + offset * node.width;
+        y = node.y + node.height;
+        break;
+      default:
+        x = node.x + node.width;
+        y = node.y + node.height / 2;
+    }
+
+    return { x, y };
+  }
+
+  addWaypointAtPosition(connectionId, x, y) {
+    const connection = this.app.diagram.connections.get(connectionId);
+    if (!connection) return;
+
+    if (!connection.waypoints) {
+      connection.waypoints = [];
+    }
+
+    // Add new waypoint
+    console.log(
+      "Adding waypoint at:",
+      x,
+      y,
+      "Total waypoints:",
+      connection.waypoints.length + 1
+    );
+    connection.waypoints.push({ x, y });
+    this.updateConnection(connectionId);
+    this.app.diagram.updateModified();
+  }
+
   updateConnectionsForNode(nodeId) {
     this.app.diagram.connections.forEach((connection, id) => {
       if (connection.sourceId === nodeId || connection.targetId === nodeId) {
@@ -337,16 +594,94 @@ export class ConnectionManager {
     const endpoints = this.app.diagram.getConnectionEndpoints(connectionId, 5);
     if (!endpoints) return;
 
+    // Always update start/end waypoints based on anchor positions
+    // (they should always stick to nodes)
+    if (connection.waypoints && connection.waypoints.length === 5) {
+      const sourceNode = this.app.diagram.nodes.get(connection.sourceId);
+      const targetNode = this.app.diagram.nodes.get(connection.targetId);
+
+      if (sourceNode && targetNode) {
+        // Always update start and end positions
+        const startPos = this.getAnchorPosition(
+          sourceNode,
+          connection.sourceAnchor
+        );
+        const endPos = this.getAnchorPosition(
+          targetNode,
+          connection.targetAnchor
+        );
+
+        connection.waypoints[0] = { x: startPos.x, y: startPos.y };
+        connection.waypoints[4] = { x: endPos.x, y: endPos.y };
+
+        // Only update middle waypoints if not locked
+        if (!connection.waypointsLocked) {
+          const startX = startPos.x;
+          const startY = startPos.y;
+          const endX = endPos.x;
+          const endY = endPos.y;
+
+          connection.waypoints[1] = {
+            x: startX + (endX - startX) * 0.25,
+            y: startY + (endY - startY) * 0.25,
+          };
+          connection.waypoints[2] = {
+            x: startX + (endX - startX) * 0.5,
+            y: startY + (endY - startY) * 0.5,
+          };
+          connection.waypoints[3] = {
+            x: startX + (endX - startX) * 0.75,
+            y: startY + (endY - startY) * 0.75,
+          };
+        }
+      }
+    }
+
     const group = this.connectionsLayer.querySelector(
       `g.connection-group[data-connection-id="${connectionId}"]`
     );
     if (!group) return;
 
-    // Update paths
+    // Update paths with waypoints
     const paths = group.querySelectorAll("path");
     if (paths.length > 0) {
-      const pathData = this.calculatePath(endpoints.source, endpoints.target);
+      const pathData = this.calculatePath(
+        endpoints.source,
+        endpoints.target,
+        connection.waypoints
+      );
       paths.forEach((p) => p.setAttribute("d", pathData));
+    }
+
+    // Remove old control points
+    const oldControlPoints = group.querySelectorAll(
+      ".connection-control-point"
+    );
+    oldControlPoints.forEach((cp) => cp.remove());
+
+    // Re-add control points if waypoints exist
+    if (connection.waypoints && connection.waypoints.length > 0) {
+      connection.waypoints.forEach((wp, index) => {
+        // Determine control point type
+        let type = "normal";
+        if (index === 0) type = "start";
+        else if (index === connection.waypoints.length - 1) type = "end";
+
+        const controlPoint = this.createControlPoint(
+          connection.id,
+          index,
+          wp.x,
+          wp.y,
+          type
+        );
+        // Insert before label
+        const label = group.querySelector(".connection-label-group");
+        if (label) {
+          group.insertBefore(controlPoint, label);
+        } else {
+          group.appendChild(controlPoint);
+        }
+      });
     }
 
     // Update label
