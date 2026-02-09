@@ -268,10 +268,6 @@ export class NodeRenderer {
             : ""
         }
 
-        <div class="node-ports">
-          <div class="node-port port-left" data-port="left"></div>
-          <div class="node-port port-right" data-port="right"></div>
-        </div>
       </div>
     `;
   }

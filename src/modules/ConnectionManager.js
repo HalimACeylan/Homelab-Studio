@@ -207,14 +207,38 @@ export class ConnectionManager {
     labelText.setAttribute("text-anchor", "middle");
     labelText.setAttribute("dominant-baseline", "middle");
 
-    // Only show bandwidth (no node names)
+    // Show connection type and bandwidth
     const bandwidth =
       connection.properties?.bandwidth || connectionType.bandwidth || "1000";
     const bandwidthUnit =
       connection.properties?.bandwidthUnit ||
       connectionType.bandwidthUnit ||
       "Mbit";
-    labelText.textContent = `${bandwidth} ${bandwidthUnit}`;
+    const typeName = connectionType.name || "Ethernet";
+
+    // Connection type (first line)
+    const typeTspan = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "tspan"
+    );
+    typeTspan.setAttribute("x", midX);
+    typeTspan.setAttribute("dy", "-0.3em");
+    typeTspan.textContent = typeName;
+    typeTspan.style.fontSize = "11px";
+    typeTspan.style.fontWeight = "600";
+    labelText.appendChild(typeTspan);
+
+    // Bandwidth (second line)
+    const bandwidthTspan = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "tspan"
+    );
+    bandwidthTspan.setAttribute("x", midX);
+    bandwidthTspan.setAttribute("dy", "1.2em");
+    bandwidthTspan.textContent = `${bandwidth} ${bandwidthUnit}`;
+    bandwidthTspan.style.fontSize = "10px";
+    bandwidthTspan.style.opacity = "0.8";
+    labelText.appendChild(bandwidthTspan);
 
     // Calculate background size based on text
     labelGroup.appendChild(labelText);

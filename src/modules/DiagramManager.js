@@ -224,35 +224,51 @@ export class DiagramManager {
   createConnection(sourceId, targetId, properties = {}) {
     const id = generateId("conn");
 
-    // Calculate initial waypoints if not provided
-    let waypoints = properties.waypoints;
-    if (!waypoints || waypoints.length === 0) {
-      // Get node positions to calculate waypoints
-      const sourceNode = this.nodes.get(sourceId);
-      const targetNode = this.nodes.get(targetId);
+    // Prevent duplicate connections
+    const existingConnection = Array.from(this.connections.values()).find(
+      (c) =>
+        (c.sourceId === sourceId && c.targetId === targetId) ||
+        (c.sourceId === targetId && c.targetId === sourceId)
+    );
 
-      if (sourceNode && targetNode) {
-        // Calculate start and end positions
-        const startX = sourceNode.x + sourceNode.width;
-        const startY = sourceNode.y + sourceNode.height / 2;
-        const endX = targetNode.x;
-        const endY = targetNode.y + targetNode.height / 2;
+    if (existingConnection) {
+      console.warn("Connection already exists between these nodes");
+      return null;
+    }
 
-        // Create 4 waypoints along the straight line (no center dot - label will go there)
-        waypoints = [
-          { x: startX, y: startY }, // 0% - Start (at source node)
-          {
-            x: startX + (endX - startX) * 0.33,
-            y: startY + (endY - startY) * 0.33,
-          }, // 33%
-          {
-            x: startX + (endX - startX) * 0.67,
-            y: startY + (endY - startY) * 0.67,
-          }, // 67%
-          { x: endX, y: endY }, // 100% - End (at target node)
-        ];
+    // Calculate which sides are closest between the two nodes
+    const sourceNode = this.nodes.get(sourceId);
+    const targetNode = this.nodes.get(targetId);
+
+    let sourceSide = "right";
+    let targetSide = "left";
+
+    if (sourceNode && targetNode) {
+      // Calculate node centers
+      const sourceCenterX = sourceNode.x + sourceNode.width / 2;
+      const sourceCenterY = sourceNode.y + sourceNode.height / 2;
+      const targetCenterX = targetNode.x + targetNode.width / 2;
+      const targetCenterY = targetNode.y + targetNode.height / 2;
+
+      // Calculate angle from source to target
+      const dx = targetCenterX - sourceCenterX;
+      const dy = targetCenterY - sourceCenterY;
+      const angle = Math.atan2(dy, dx);
+      const absAngle = Math.abs(angle);
+
+      // Determine source side based on direction to target
+      if (absAngle < Math.PI / 4) {
+        sourceSide = "right";
+        targetSide = "left";
+      } else if (absAngle > (3 * Math.PI) / 4) {
+        sourceSide = "left";
+        targetSide = "right";
+      } else if (angle > 0) {
+        sourceSide = "bottom";
+        targetSide = "top";
       } else {
-        waypoints = [];
+        sourceSide = "top";
+        targetSide = "bottom";
       }
     }
 
@@ -275,14 +291,45 @@ export class DiagramManager {
 
     // Initialize anchor points with unique positions
     const sourceAnchor = properties.sourceAnchor || {
-      side: "right",
+      side: sourceSide,
       offset: Math.max(0.1, Math.min(0.9, sourceOffset)), // Keep within 10-90% range
     };
 
     const targetAnchor = properties.targetAnchor || {
-      side: "left",
+      side: targetSide,
       offset: Math.max(0.1, Math.min(0.9, targetOffset)),
     };
+
+    // NOW create waypoints using the calculated anchor positions
+    let waypoints = properties.waypoints;
+    if (!waypoints) {
+      if (sourceNode && targetNode) {
+        // Calculate actual anchor positions on node edges
+        const startPos = this.getAnchorPosition(sourceNode, sourceAnchor);
+        const endPos = this.getAnchorPosition(targetNode, targetAnchor);
+
+        const startX = startPos.x;
+        const startY = startPos.y;
+        const endX = endPos.x;
+        const endY = endPos.y;
+
+        // Create 4 waypoints along the straight line
+        waypoints = [
+          { x: startX, y: startY },
+          {
+            x: startX + (endX - startX) * 0.33,
+            y: startY + (endY - startY) * 0.33,
+          },
+          {
+            x: startX + (endX - startX) * 0.67,
+            y: startY + (endY - startY) * 0.67,
+          },
+          { x: endX, y: endY },
+        ];
+      } else {
+        waypoints = [];
+      }
+    }
 
     const connection = {
       id,
@@ -326,9 +373,12 @@ export class DiagramManager {
     return item;
   }
 
-  removeTextItem(id) {
-    this.textItems.delete(id);
-    this.updateModified();
+  deleteTextItem(id) {
+    const deleted = this.textItems.delete(id);
+    if (deleted) {
+      this.updateModified();
+    }
+    return deleted;
   }
 
   importTextItem(itemData) {
@@ -519,5 +569,36 @@ export class DiagramManager {
       x: centerX + dx * t,
       y: centerY + dy * t,
     };
+  }
+
+  // Helper method to calculate anchor position on node
+  getAnchorPosition(node, anchor) {
+    const { side, offset } = anchor;
+    const padding = 5; // 5px inside the border for better UI
+    let x, y;
+
+    switch (side) {
+      case "right":
+        x = node.x + node.width - padding;
+        y = node.y + padding + offset * (node.height - 2 * padding);
+        break;
+      case "left":
+        x = node.x + padding;
+        y = node.y + padding + offset * (node.height - 2 * padding);
+        break;
+      case "top":
+        x = node.x + padding + offset * (node.width - 2 * padding);
+        y = node.y + padding;
+        break;
+      case "bottom":
+        x = node.x + padding + offset * (node.width - 2 * padding);
+        y = node.y + node.height - padding;
+        break;
+      default:
+        x = node.x + node.width - padding;
+        y = node.y + node.height / 2;
+    }
+
+    return { x, y };
   }
 }
