@@ -258,6 +258,8 @@ export class NodeRenderer {
             : ""
         }
 
+        <!-- Resize handle -->
+        <div class="node-resize-handle"></div>
       </div>
     `;
   }

@@ -650,4 +650,8 @@ export class DiagramManager {
 
     return { x, y };
   }
+
+  getNodeType(type) {
+    return NODE_TYPES[type];
+  }
 }

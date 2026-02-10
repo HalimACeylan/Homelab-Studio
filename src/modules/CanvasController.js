@@ -29,6 +29,7 @@ export class CanvasController {
     this.isDragging = false;
     this.isConnecting = false;
     this.isSelecting = false;
+    this.isResizing = false;
 
     this.selectedNodeIds = new Set();
     this.selectedConnectionIds = new Set();
@@ -38,6 +39,10 @@ export class CanvasController {
     this.draggedNode = null;
     this.dragOffset = { x: 0, y: 0 };
     this.lastMousePos = { x: 0, y: 0 };
+
+    // Resize state
+    this.resizingNode = null;
+    this.resizeStartSize = null;
 
     this.gridSize = 20;
     this.snapEnabled = true;
@@ -94,6 +99,15 @@ export class CanvasController {
     const portElement = e.target.closest(".node-port");
     const connectionElement = e.target.closest(".connection");
     const groupLabelElement = e.target.closest(".group-label");
+    const resizeHandle = e.target.closest(".node-resize-handle");
+
+    // Handle resize handle click (MUST be first)
+    if (resizeHandle && nodeElement) {
+      e.stopPropagation();
+      e.preventDefault();
+      this.startResizing(nodeElement, e);
+      return;
+    }
 
     // Handle Group Label Click (only the label, not the entire box)
     if (
@@ -279,6 +293,8 @@ export class CanvasController {
 
     if (this.isPanning) {
       this.updatePanning(e);
+    } else if (this.isResizing) {
+      this.handleResize(e);
     } else if (this.isDragging && this.draggedNode) {
       this.updateDragging(e);
     } else if (this.isConnecting) {
@@ -291,6 +307,8 @@ export class CanvasController {
   handleMouseUp(e) {
     if (this.isPanning) {
       this.stopPanning();
+    } else if (this.isResizing) {
+      this.stopResizing();
     } else if (this.isDragging) {
       this.stopDragging();
     } else if (this.isConnecting) {
@@ -1637,6 +1655,111 @@ export class CanvasController {
         y: canvasPos.y - item.y,
       });
     }
+  }
+
+  // Node Resizing
+  startResizing(nodeElement, e) {
+    const nodeId = nodeElement.dataset.nodeId;
+    const node = this.app.diagram.nodes.get(nodeId);
+    if (!node) return;
+
+    this.isResizing = true;
+    this.resizingNode = { id: nodeId, element: nodeElement };
+    this.resizeStartSize = {
+      width: node.width,
+      height: node.height,
+      startX: e.clientX,
+      startY: e.clientY,
+    };
+
+    nodeElement.classList.add("resizing");
+    document.body.style.cursor = "nwse-resize";
+  }
+
+  handleResize(e) {
+    if (!this.isResizing || !this.resizingNode) return;
+
+    const node = this.app.diagram.nodes.get(this.resizingNode.id);
+    if (!node) return;
+
+    const deltaX = (e.clientX - this.resizeStartSize.startX) / this.scale;
+    const deltaY = (e.clientY - this.resizeStartSize.startY) / this.scale;
+
+    // Calculate new size
+    let newWidth = this.resizeStartSize.width + deltaX;
+    let newHeight = this.resizeStartSize.height + deltaY;
+
+    // Get node type info for minimum size
+    const nodeType = this.app.diagram.getNodeType(node.type);
+    const minWidth = nodeType?.defaultWidth || 200;
+    const minHeight = nodeType?.defaultHeight || 160;
+
+    // Calculate content-based minimum height if node has OS environments
+    let contentMinHeight = minHeight;
+    if (node.osEnvironments && node.osEnvironments.length > 0) {
+      // Ensure OS environments remain visible - give enough height
+      const osEnvCount = node.osEnvironments.length;
+      const appCount = (node.applications || []).length;
+      const hasContent = osEnvCount > 0 || appCount > 0;
+
+      if (hasContent) {
+        // Calculate needed height: header + specs + OS environments
+        contentMinHeight = Math.max(minHeight, 200 + osEnvCount * 60);
+      }
+    }
+
+    // Apply constraints
+    const maxSize = 500;
+    newWidth = Math.max(minWidth, Math.min(maxSize, newWidth));
+    newHeight = Math.max(contentMinHeight, Math.min(maxSize, newHeight));
+
+    // Snap to grid if enabled
+    if (this.snapEnabled) {
+      newWidth = Math.round(newWidth / this.gridSize) * this.gridSize;
+      newHeight = Math.round(newHeight / this.gridSize) * this.gridSize;
+    }
+
+    // Update node size
+    node.width = newWidth;
+    node.height = newHeight;
+
+    // Update visual element
+    this.resizingNode.element.style.width = `${newWidth}px`;
+    this.resizingNode.element.style.height = `${newHeight}px`;
+  }
+
+  stopResizing() {
+    if (!this.isResizing) return;
+
+    if (this.resizingNode) {
+      this.resizingNode.element.classList.remove("resizing");
+
+      // Final connection update to ensure accuracy
+      this.app.connections.updateConnectionsForNode(this.resizingNode.id);
+
+      // Save to history
+      const node = this.app.diagram.nodes.get(this.resizingNode.id);
+      if (node) {
+        this.app.history.push({
+          type: "resize-node",
+          nodeId: this.resizingNode.id,
+          oldSize: {
+            width: this.resizeStartSize.width,
+            height: this.resizeStartSize.height,
+          },
+          newSize: {
+            width: node.width,
+            height: node.height,
+          },
+        });
+        this.app.diagram.updateModified();
+      }
+    }
+
+    this.isResizing = false;
+    this.resizingNode = null;
+    this.resizeStartSize = null;
+    document.body.style.cursor = "";
   }
 
   renderTextItems() {

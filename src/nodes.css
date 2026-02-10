@@ -1207,3 +1207,37 @@
 .os-env-header[draggable="true"]:hover {
   background: rgba(88, 166, 255, 0.05);
 }
+
+/* Node Resize Handle */
+.node-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 10;
+}
+
+.node-resize-handle::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 12px 12px;
+  border-color: transparent transparent var(--text-secondary) transparent;
+}
+
+.canvas-node:hover .node-resize-handle,
+.canvas-node.resizing .node-resize-handle {
+  opacity: 1;
+}
+
+.canvas-node.resizing {
+  transition: none !important;
+}
