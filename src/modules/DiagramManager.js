@@ -224,18 +224,6 @@ export class DiagramManager {
   createConnection(sourceId, targetId, properties = {}) {
     const id = generateId("conn");
 
-    // Prevent duplicate connections
-    const existingConnection = Array.from(this.connections.values()).find(
-      (c) =>
-        (c.sourceId === sourceId && c.targetId === targetId) ||
-        (c.sourceId === targetId && c.targetId === sourceId)
-    );
-
-    if (existingConnection) {
-      console.warn("Connection already exists between these nodes");
-      return null;
-    }
-
     // Calculate which sides are closest between the two nodes
     const sourceNode = this.nodes.get(sourceId);
     const targetNode = this.nodes.get(targetId);
