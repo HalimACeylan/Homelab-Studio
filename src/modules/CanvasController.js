@@ -1015,6 +1015,7 @@ export class CanvasController {
       "path"
     );
     this.tempConnection.classList.add(
+      "connection",
       "connection-temp",
       this.app.activeConnectionType
     );
