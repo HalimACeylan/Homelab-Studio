@@ -6,30 +6,26 @@ on:
   pull_request:
     branches: [main, release]
 
+# Minimal read-only permissions — prevents fork PRs from using
+# the GITHUB_TOKEN to write anything to the repository.
+permissions:
+  contents: read
+
 jobs:
   build:
-    name: Build & Lint Check
+    name: Build Check
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+        # Use the public HTTPS URL — no token needed for a public repo.
+        # This is safe for fork pull_requests because no write token is exposed.
+        run: |
+          git clone --depth 1 ${{ github.server_url }}/${{ github.repository }}.git .
+          git checkout ${{ github.sha }}
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build
         run: npm run build
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-          retention-days: 7
