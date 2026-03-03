@@ -1,0 +1,78 @@
+PolyForm Noncommercial License 1.0.0
+
+Copyright (c) 2025 Halim A. Ceylan <https://github.com/HalimACeylan>
+
+This software and associated documentation files (the "Software") may only be
+used for noncommercial purposes. Noncommercial purposes include personal,
+educational, research, evaluation, and other similar uses that are not intended
+to generate revenue or be used by or on behalf of any company, organization,
+or commercial entity.
+
+---
+
+Acceptance
+
+In order to get any license under these terms, you must agree to them as both
+strict obligations and conditions to all your licenses.
+
+Noncommercial Purposes
+
+The licensor grants you a copyright license for the software to do everything
+you might do with the software for noncommercial purposes only.
+
+Noncommercial means not primarily intended for or directed towards commercial
+advantage or monetary compensation. For the avoidance of doubt:
+
+- You may use the software for personal homelab or self-hosting projects.
+- You may use the software for educational or research purposes.
+- You may NOT use the software as part of a product or service offered by a
+  company, organization, or commercial entity.
+- You may NOT use the software internally within a company or organization,
+  even if no revenue is directly generated from it.
+
+Source Availability
+
+If you distribute the software, or a modified version of it, you must make the
+complete corresponding source code available under this same license or a
+compatible noncommercial license, and you must not impose any additional
+restrictions beyond those in this license.
+
+No Sublicensing
+
+You may not sublicense the software. Each recipient of the software must agree
+to these terms directly.
+
+Patents
+
+The licensor grants you a patent license for the software that covers patent
+claims the licensor can license, or will be able to license, that you would
+infringe by using the software for noncommercial purposes.
+
+Notices
+
+You must ensure that anyone who gets a copy of any part of the software from
+you also gets a copy of these terms.
+
+No Other Rights
+
+These terms do not allow you to sublicense or transfer any of your licenses to
+anyone else, or prevent the licensor from granting licenses to anyone else.
+These terms do not imply any other licenses.
+
+Termination
+
+Your licenses under these terms end automatically if you fail to comply with
+these terms, if you are sued for patent infringement related to the software,
+or if anyone notifies you in writing that you have violated these terms.
+
+No Warranty
+
+As far as the law allows, the software comes as is, without any warranty or
+condition, and the licensor will not be liable to you for any damages arising
+out of these terms or the use or nature of the software, under any kind of
+legal claim.
+
+---
+
+For commercial licensing inquiries, please contact the author at:
+https://github.com/HalimACeylan
