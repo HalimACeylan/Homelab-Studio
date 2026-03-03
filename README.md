@@ -2,7 +2,8 @@
 
 > A visual, browser-based infrastructure editor for designing and documenting your homelab topology diagrams — no backend required.
 
-![HomeLab Studio Interface](./public/screenshot.png)
+<img width="1898" height="1027" alt="HomeLab Studio interface" src="https://github.com/user-attachments/assets/b2d9d2ec-732f-45ec-a5b0-4a8382647d36" />
+
 
 ## ✨ Features
 
