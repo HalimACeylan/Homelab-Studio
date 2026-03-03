@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [release]
+    branches: [main, release]
   workflow_dispatch:
 
 # Scope writes to contents only (gh-pages push). Everything else is read-only.
