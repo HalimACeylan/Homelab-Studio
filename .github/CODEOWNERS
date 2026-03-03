@@ -1,0 +1,23 @@
+# CODEOWNERS
+# Each line is a file pattern followed by one or more owners.
+# Owners are automatically requested for review when someone opens
+# a pull request that modifies the matching files.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owner — @HalimACeylan reviews everything
+* @HalimACeylan
+
+# Core source files
+/src/ @HalimACeylan
+
+# GitHub config & workflows
+/.github/ @HalimACeylan
+
+# Public assets & icons
+/public/ @HalimACeylan
+
+# Project configuration
+package.json @HalimACeylan
+vite.config.* @HalimACeylan
+LICENSE @HalimACeylan
+README.md @HalimACeylan
